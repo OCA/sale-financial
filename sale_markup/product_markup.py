@@ -50,7 +50,7 @@ class Product(Model):
                        product_uom = None,
                        pricelist   = None,
                        sale_price  = None,
-                       #properties  = None,
+                       properties  = None,
                        context     = None):
         '''
         compute markup
@@ -65,10 +65,11 @@ class Product(Model):
             ids =  [ids]
         res = {}
 
-        # compute purchase prices, in order to take product with bom into account
-        # FIXME use get_cost_field to get the field name
-        purchase_prices = self._compute_purchase_price(cursor, user, ids, 
-                                                       product_uom, pricelist, properties)
+        # cost_price_context will be used by product_get_cost_field if it is installed
+        cost_price_context = context.copy().update({'produc_uom': product_uom,
+                                                    'pricelist': pricelist,
+                                                    'properties': properties})
+        purchase_prices = self._cost_price(cursor, user, ids, cost_price_context)
         # if purchase prices failed returned a dict of default values
         if not purchase_prices: return dict([(id, {'commercial_margin': 0.0,
                                                    'markup_rate': 0.0,
