@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Joël Grand-Guillaume
+#    Author: Yannick Vaucher
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,16 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
-from osv import fields
 from osv.orm import Model
-import decimal_precision as dp
 
-class Product(Model):
-    """Add floor price to product"""
-    _inherit = 'product.product'
-    _columns = {'floor_price_limit': fields.float('Floor Price',
-                                                  digits_compute=dp.get_precision('Sale Price'),
-                                                  help=("Floor price for this product:"
-                                                        "salesmen will not be able to make"
-                                                        "a discount in SO below that price."))}
+
+class MrpBoM(Model):
+    _inherit = 'mrp.bom'
+
+    def _limit_produced_product_number(self, cursor, user, ids, context=None):
+        """Add a constraint of to limit qty of product to 1 on BOM"""
+        context = context or {}
+        bom = self.browse(cursor, user, ids[0])
+        if bom.product_qty != 1 and bom.bom_lines:
+            return False
+        return True
+
+
+
+    _constraints = [(_limit_produced_product_number,
+                     "sale_markup module doesn't allow you to have a"
+                     "bom with product qty > 1.",
+                     ['product_qty', 'bom_lines'])]

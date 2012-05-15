@@ -4,7 +4,7 @@
 #    Copyright (c) 2011 Camptocamp SA (http://www.camptocamp.com)
 #    All Right Reserved
 #
-#    Author : Yannick Vaucher, Joel Grand-Guillaume
+#    Author : Yannick Vaucher (Camptocamp)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -35,8 +35,7 @@ class SaleOrder(Model):
     def _amount_all(self, cursor, user, ids, field_name, arg, context = None):
         '''Calculate the markup rate based on sums'''
 
-        if context is None:
-            context = {}
+        context = context or {}
         res = {}
         res = super(SaleOrder, self)._amount_all(cursor, user, ids, field_name, arg, context)
 
@@ -51,8 +50,6 @@ class SaleOrder(Model):
 
 
     def _get_order(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
         result = set()
         for line in self.pool.get('sale.order.line').browse(cr, uid, ids, context=context):
             result.add(line.order_id.id)
@@ -60,8 +57,7 @@ class SaleOrder(Model):
 
     _store_sums = {
         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
-        'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty',
-                'product_id','commercial_margin', 'markup_rate'], 10)}
+        'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10)}
 
 
     _columns = {'markup_rate': fields.function(_amount_all,
@@ -77,22 +73,24 @@ class SaleOrderLine(Model):
     _inherit = 'sale.order.line'
 
     _columns = {'commercial_margin': fields.float('Margin',
-                                                digits_compute=dp.get_precision('Sale Price'),
-                                                help='Margin is [ sale_price - cost_price ],'
-                                                     ' changing it will update the discount'),
-                'markup_rate': fields.float('Markup Rate (%)',
-                                            digits_compute=dp.get_precision('Sale Price'),
-                                            help='Margin rate is [ margin / sale_price ],'
-                                                 'changing it will update the discount'),
-                'cost_price': fields.float('Historical Cost Price',
+                                                  digits_compute=dp.get_precision('Sale Price'),
+                                                  help='Margin is [ sale_price - cost_price ],'
+                                                       ' changing it will update the discount'),
+                  'markup_rate': fields.float('Markup Rate (%)',
                                               digits_compute=dp.get_precision('Sale Price'),
-                                              help="The cost price of the product at the time of the creation of the sale order"),
-                 }
-             
+                                              help='Margin rate is [ margin / sale_price ],'
+                                                   'changing it will update the discount'),
+                  'cost_price': fields.related('product_id',
+                                               'cost_price',
+                                               type ='float',
+                                               string='Cost Price (incl. BOM)',
+                                               readonly=True,
+                                               help ="The cost is the standard price unless the product is composed,"
+                                                    " in that case it compute the price from its components" )}
 
 
     def onchange_price_unit(self, cursor, uid, ids, price_unit, product_id, discount,
-                            product_uom, pricelist, **kwargs):
+                            product_uom, pricelist):
         '''
         If price unit change, compute the new markup rate.
         '''
@@ -122,7 +120,7 @@ class SaleOrderLine(Model):
 
 
     def onchange_discount(self, cursor, uid, ids,
-                          price_unit, product_id, discount, product_uom, pricelist, **kwargs):
+                          price_unit, product_id, discount, product_uom, pricelist):
         '''
         If discount change, compute the new markup rate
         '''
@@ -132,7 +130,7 @@ class SaleOrderLine(Model):
                                                           discount,
                                                           product_uom,
                                                           pricelist)
-        
+
         if product_id:
             product_obj = self.pool.get('product.product')
             if res['value'].has_key('price_unit'):
@@ -163,8 +161,6 @@ class SaleOrderLine(Model):
                        - discount
                        - properties
         '''
-        if context is None:
-            context = {}
         discount = discount or 0.0
         price_unit = price_unit or 0.0
         res = {}
@@ -193,10 +189,8 @@ class SaleOrderLine(Model):
 
 
     def onchange_markup_rate(self, cursor, uid, ids,
-                             markup, cost_price, price_unit, context=None):
+                             markup, cost_price, price_unit):
         ''' If markup rate change compute the discount '''
-        if context is None:
-            context = {}
         res = {}
         res['value'] = {}
         markup = markup / 100.0
@@ -209,10 +203,8 @@ class SaleOrderLine(Model):
 
 
     def onchange_commercial_margin(self, cursor, uid, ids,
-                                   margin, cost_price, price_unit, context=None):
+                                   margin, cost_price, price_unit):
         ''' If markup rate change compute the discount '''
-        if context is None:
-            context = {}
         res = {}
         res['value'] = {}
         if not price_unit: return {'value': {}}

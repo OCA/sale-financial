@@ -38,7 +38,7 @@ class SaleOrderLine(Model):
     def _compute_lowest_discount(self, cr, uid, floor_price, price_unit):
         diff = (floor_price - price_unit)
         disc = diff / price_unit
-        return abs(round(disc*100, 2))
+        return abs(round(disc*100,2))
 
     def _compute_lowest_price(self, cr, uid, floor_price, discount):
         if discount == 100.0:
@@ -47,12 +47,13 @@ class SaleOrderLine(Model):
             res = floor_price / (1-(discount / 100.0))
         return res
 
-    def product_id_change(self, cr, uid, ids, *args, **kwargs):
+    def product_id_change(self,cr, uid, ids, *args, **kwargs):
         '''
         Overload method:
             - Empty the discount when changing.
         '''
         res = super(SaleOrderLine, self).product_id_change(cr, uid, ids, *args, **kwargs)
+
         res['value']['discount'] = 0.0
         return res
 
@@ -68,43 +69,49 @@ class SaleOrderLine(Model):
         res = super(SaleOrderLine, self).onchange_price_unit(cr, uid, ids, price_unit,
                                                              product_id, discount, product_uom,
                                                              pricelist, **kwargs)
-        self._check_floor_price(cr, uid, res, price_unit, product_id, discount, override_unit_price)
+        res['value'] = res.get('value', {})
+
+        if product_id and price_unit > 0.0:
+            product_obj = self.pool.get('product.product')
+            prod = product_obj.browse(cr,uid,product_id)
+            if self._reach_floor_price(cr, uid, prod.floor_price_limit, discount, price_unit):
+                if override_unit_price:
+                    res['value']['price_unit'] = self._compute_lowest_price(cr ,uid, prod.floor_price_limit, discount)
+                else:
+                    res['value']['price_unit'] = price_unit
+                str_tuple = (price_unit, discount, prod.floor_price_limit, res['value']['price_unit'])
+                warn_msg = _(("You selected a unit price of %d.- with %.2f discount."
+                              "\nThe floor price has been set to %d"
+                              ".-, so the mininum allowed value is %d.") % str_tuple)
+
+                warning = {'title': _('Floor price reached !'),
+                           'message': warn_msg}
+                res['warning'] = warning
+                res['domain'] = {}
         return res
 
-
-    def onchange_discount(self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs):
+    def onchange_discount(self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist):
         '''
         If discount change, check that final price is not < floor_price_limit of related product
         '''
         res = super(SaleOrderLine, self).onchange_discount(cr, uid, ids, price_unit, product_id,
                                                            discount, product_uom, pricelist)
 
-        self._check_floor_price(cr, uid, res, price_unit, product_id, discount)
-        return res
+        res['value'] = res.get('value', {})
 
-    def _check_floor_price(self, cr, uid, result, price_unit, product_id, discount, override_unit_price=True):
-        """
-        result is a partially filled result dictionary, modified in place
-        """
-        if 'value' not in result:
-            result['value'] = {}
         if product_id and price_unit > 0.0:
             product_obj = self.pool.get('product.product')
-            prod = product_obj.browse(cr, uid, product_id)
+            prod = product_obj.browse(cr,uid,product_id)
             if self._reach_floor_price(cr, uid, prod.floor_price_limit, discount, price_unit):
-                if override_unit_price:
-                    result['value']['price_unit'] = self._compute_lowest_price(cr, uid, prod.floor_price_limit, discount)
-                else:
-                    result['value']['price_unit'] = price_unit
-                substs = {'price_unit':price_unit,
-                          'discount': discount,
-                          'floor_price': prod.floor_price_limit,
-                          'min_price': result['value']['price_unit']}
-                warn_msg = _("You selected a unit price of %(price_unit)d.- with %(discount).2f discount.\n"
-                             "The floor price has been set to %(floor_price)d.-,"
-                             "so the mininum allowed value is %(min_price)d.") 
-
-                warning = {'title': _('Floor price reached !'),
-                           'message': warn_msg % substs}
-                result['warning'] = warning
-                result['domain'] = {}
+                res['value']['discount'] = self._compute_lowest_discount(cr,uid,prod.floor_price_limit,price_unit)
+                str_tuple = (discount,price_unit,prod.floor_price_limit,res['value']['discount'])
+                warn_msg = _(("You selected a discount of %.2f with a unit price of %d.-."
+                             "\nThe floor price has been set to %d.-, so "
+                             "the maximum discount allowed is %d.") % str_tuple)
+                warning = {
+                    'title': _('Floor price reached !'),
+                    'message': warn_msg
+                    }
+                res['warning'] = warning
+                res['domain'] = {}
+        return res

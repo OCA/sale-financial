@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Yannick Vaucher, Joel Grand-Guillaume
+#    Author: Yannick Vaucher
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -21,3 +21,4 @@
 
 from . import product_markup
 from . import sale_markup
+from . import mrp_markup
