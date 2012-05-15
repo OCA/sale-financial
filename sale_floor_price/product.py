@@ -28,6 +28,6 @@ class Product(Model):
     _inherit = 'product.product'
     _columns = {'floor_price_limit': fields.float('Floor Price',
                                                   digits_compute=dp.get_precision('Sale Price'),
-                                                  help=("Floor price for this product:"
-                                                        "salesmen will not be able to make"
-                                                        "a discount in SO below that price."))}
+                                                  help="Floor price for this product:"
+                                                  "salesmen will not be able to make"
+                                                  "a discount in SO below that price.")}

@@ -38,7 +38,7 @@ class SaleOrderLine(Model):
     def _compute_lowest_discount(self, cr, uid, floor_price, price_unit):
         diff = (floor_price - price_unit)
         disc = diff / price_unit
-        return abs(round(disc*100,2))
+        return abs(round(disc*100, 2))
 
     def _compute_lowest_price(self, cr, uid, floor_price, discount):
         if discount == 100.0:
@@ -47,13 +47,12 @@ class SaleOrderLine(Model):
             res = floor_price / (1-(discount / 100.0))
         return res
 
-    def product_id_change(self,cr, uid, ids, *args, **kwargs):
+    def product_id_change(self, cr, uid, ids, *args, **kwargs):
         '''
         Overload method:
             - Empty the discount when changing.
         '''
         res = super(SaleOrderLine, self).product_id_change(cr, uid, ids, *args, **kwargs)
-
         res['value']['discount'] = 0.0
         return res
 
@@ -73,10 +72,10 @@ class SaleOrderLine(Model):
 
         if product_id and price_unit > 0.0:
             product_obj = self.pool.get('product.product')
-            prod = product_obj.browse(cr,uid,product_id)
+            prod = product_obj.browse(cr, uid, product_id)
             if self._reach_floor_price(cr, uid, prod.floor_price_limit, discount, price_unit):
                 if override_unit_price:
-                    res['value']['price_unit'] = self._compute_lowest_price(cr ,uid, prod.floor_price_limit, discount)
+                    res['value']['price_unit'] = self._compute_lowest_price(cr, uid, prod.floor_price_limit, discount)
                 else:
                     res['value']['price_unit'] = price_unit
                 str_tuple = (price_unit, discount, prod.floor_price_limit, res['value']['price_unit'])
@@ -90,7 +89,7 @@ class SaleOrderLine(Model):
                 res['domain'] = {}
         return res
 
-    def onchange_discount(self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist):
+    def onchange_discount(self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs):
         '''
         If discount change, check that final price is not < floor_price_limit of related product
         '''
@@ -101,10 +100,10 @@ class SaleOrderLine(Model):
 
         if product_id and price_unit > 0.0:
             product_obj = self.pool.get('product.product')
-            prod = product_obj.browse(cr,uid,product_id)
+            prod = product_obj.browse(cr, uid, product_id)
             if self._reach_floor_price(cr, uid, prod.floor_price_limit, discount, price_unit):
-                res['value']['discount'] = self._compute_lowest_discount(cr,uid,prod.floor_price_limit,price_unit)
-                str_tuple = (discount,price_unit,prod.floor_price_limit,res['value']['discount'])
+                res['value']['discount'] = self._compute_lowest_discount(cr, uid, prod.floor_price_limit, price_unit)
+                str_tuple = (discount, price_unit, prod.floor_price_limit, res['value']['discount'])
                 warn_msg = _(("You selected a discount of %.2f with a unit price of %d.-."
                              "\nThe floor price has been set to %d.-, so "
                              "the maximum discount allowed is %d.") % str_tuple)
