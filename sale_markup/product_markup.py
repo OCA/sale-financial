@@ -74,9 +74,7 @@ class Product(Model):
                                                    'markup_rate': 0.0,
                                                    'cost_price': 0.0,}) for id in ids])
 
-        if pricelist:
-            for id in purchase_prices:
-                purchase_price
+        purchase_price = self._convert_to_foreign_currency(cursor, user, pricelist, purchase_price)
         for pr in self.browse(cursor, user, ids):
             res[pr.id] = {}
             if sale_price is None:
