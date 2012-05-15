@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-    
+
     <!-- Sale order -->
-    
+
     <!-- Add markup rate of the order in form view after Compute button -->
     <record model="ir.ui.view" id="sale_markup_sale_order_view">
       <field name="name">sale.order.markup.view.form</field>
@@ -26,7 +26,6 @@
       <field name="inherit_id" ref="sale.view_order_tree" />
       <field name="arch" type="xml">
         <field name="state" position="after">
-
           <field name="markup_rate"
                  groups="base.group_sale_manager"/>
         </field>
@@ -47,11 +46,10 @@
         </field>
       </field>
     </record>
-    
-    
+
+
     <!-- Add Markup in Sales Orders form's Sale order lines form -->
     <!-- Add onchanges on unit price and discount to update margin and markup -->
-    
     <record model="ir.ui.view" id="sale_markup_sale_order_form_line_form">
       <field name="name">sale.order.markup.view.form2</field>
       <field name="type">form</field>
@@ -77,7 +75,7 @@
           </group>
         </xpath>
         <xpath expr="//field[@name='product_uom_qty']" position="attributes">
-            <attribute name="on_change">product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id,False,True,parent.date_order,product_packaging,parent.fiscal_position,False,price_unit,discount,context)</attribute> 
+            <attribute name="on_change">product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id,False,True,parent.date_order,product_packaging,parent.fiscal_position,False,price_unit,discount,context)</attribute>
         </xpath>
       </field>
     </record>
