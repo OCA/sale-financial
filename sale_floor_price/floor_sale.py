@@ -96,12 +96,15 @@ class SaleOrderLine(Model):
                     result['value']['price_unit'] = self._compute_lowest_price(cr, uid, prod.floor_price_limit, discount)
                 else:
                     result['value']['price_unit'] = price_unit
-                str_tuple = (price_unit, discount, prod.floor_price_limit, result['value']['price_unit'])
-                warn_msg = _(("You selected a unit price of %d.- with %.2f discount."
-                              "\nThe floor price has been set to %d"
-                              ".-, so the mininum allowed value is %d.") % str_tuple)
+                substs = {'price_unit':price_unit,
+                          'discount': discount,
+                          'floor_price': prod.floor_price_limit,
+                          'min_price': result['value']['price_unit']}
+                warn_msg = _("You selected a unit price of %(price_unit)d.- with %(discount).2f discount.\n"
+                             "The floor price has been set to %(floor_price)d.-,"
+                             "so the mininum allowed value is %(min_price)d.") 
 
                 warning = {'title': _('Floor price reached !'),
-                           'message': warn_msg}
+                           'message': warn_msg % substs}
                 result['warning'] = warning
                 result['domain'] = {}
