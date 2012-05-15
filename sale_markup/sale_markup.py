@@ -90,7 +90,7 @@ class SaleOrderLine(Model):
 
 
     def onchange_price_unit(self, cursor, uid, ids, price_unit, product_id, discount,
-                            product_uom, pricelist):
+                            product_uom, pricelist, **kwargs):
         '''
         If price unit change, compute the new markup rate.
         '''
@@ -120,7 +120,7 @@ class SaleOrderLine(Model):
 
 
     def onchange_discount(self, cursor, uid, ids,
-                          price_unit, product_id, discount, product_uom, pricelist):
+                          price_unit, product_id, discount, product_uom, pricelist, **kwargs):
         '''
         If discount change, compute the new markup rate
         '''

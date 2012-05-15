@@ -29,83 +29,34 @@ import decimal_precision as dp
 class Product(Model):
     _inherit = 'product.product'
 
-    def _convert_to_foreign_currency(self, cursor, user, pricelist, amount):
+    def _convert_to_foreign_currency(self, cursor, user, pricelist, amount_dict):
+        if not pricelist:
+            return amount_dict
         pricelist_obj = self.pool.get('product.pricelist')
         currency_obj = self.pool.get('res.currency')
         user_obj = self.pool.get('res.users')
         pricelist = pricelist_obj.browse(cursor, user, pricelist)
         company_currency_id = user_obj.browse(cursor, user, user).company_id.currency_id.id
-        price = currency_obj.compute(cursor, user,
-                                     company_currency_id,
-                                     pricelist.currency_id.id,
-                                     amount,
-                                     round=False)
-        return price
-
-    def _compute_purchase_price(self, cursor, user, ids, product_uom, pricelist, properties=None):
-        '''
-        Compute the purchase price
-
-        As it explodes the sub product on 1 level
-
-        This is not implemented for BoM having sub BoM producing more than 1
-        product qty.
-        Rewrite _compute_purchase_price and remove mrp constraint to fix this.
-        '''
-        if properties is None:
-            properties =  []
-        bom_obj = self.pool.get('mrp.bom')
-        uom_obj = self.pool.get('product.uom')
-
-        res = {}
-        ids = ids or []
-
-        for pr in self.browse(cursor, user, ids):
-
-            # Workarount for first loading in V5 as some columns are not created
-            if not hasattr(pr, 'standard_price'): return False
-            bom_id = bom_obj._bom_find(cursor, user, pr.id, product_uom, properties)
-
-            if bom_id:
-                bom = bom_obj.browse(cursor, user, bom_id)
-
-                sub_products, routes = bom_obj._bom_explode(cursor, user, bom, 1, properties, addthis=True)
-
-                res[pr.id] = 0.0
-                for spr in sub_products:
-                    sub_product = self.browse(cursor, user, spr['product_id'])
-
-                    if pricelist:
-                        std_price = self._convert_to_foreign_currency(cursor, user,
-                                                                      pricelist,
-                                                                      sub_product.standard_price)
-                    else:
-                        std_price = sub_product.standard_price
-
-                    qty = uom_obj._compute_qty(cursor, user,
-                                               from_uom_id = spr['product_uom'],
-                                               qty         = spr['product_qty'],
-                                               to_uom_id   = sub_product.uom_po_id.id)
-
-                    res[pr.id] += std_price * qty
-                    # TODO use routes to compute cost of manufacturing
-                    # sum routing hours * workcenter_cost_per_hour
-
-            else:
-                res[pr.id] = pr.standard_price
-
-        return res
-
+        converted_price = {}
+        for product_id, amount in amount_dict.iteritems():
+            converted_price[product_id] = currency_obj.compute(cursor, user,
+                                                               company_currency_id,
+                                                               pricelist.currency_id.id,
+                                                               amount,
+                                                               round=False)
+        return converted_price
 
     def compute_markup(self, cursor, user, ids,
                        product_uom = None,
                        pricelist   = None,
                        sale_price  = None,
-                       properties  = None,
+                       #properties  = None,
                        context     = None):
         '''
         compute markup
-        If properties, pricelist and sale_price arguments are set, it will be used to compute all results
+
+        If properties, pricelist and sale_price arguments are set, it
+        will be used to compute all results
         '''
         properties = properties or []
         pricelist = pricelist or []
@@ -115,15 +66,17 @@ class Product(Model):
         res = {}
 
         # compute purchase prices, in order to take product with bom into account
-        purchase_prices = self._compute_purchase_price(cursor, user, ids,
+        # FIXME use get_cost_field to get the field name
+        purchase_prices = self._compute_purchase_price(cursor, user, ids, 
                                                        product_uom, pricelist, properties)
-
         # if purchase prices failed returned a dict of default values
         if not purchase_prices: return dict([(id, {'commercial_margin': 0.0,
                                                    'markup_rate': 0.0,
                                                    'cost_price': 0.0,}) for id in ids])
 
-
+        if pricelist:
+            for id in purchase_prices:
+                purchase_price
         for pr in self.browse(cursor, user, ids):
             res[pr.id] = {}
             if sale_price is None:
@@ -190,25 +143,27 @@ class Product(Model):
 
 
 
-    _columns = {'commercial_margin' : fields.function(_compute_all_markup,
-                                                      method=True,
-                                                      string='Margin',
-                                                      digits_compute=dp.get_precision('Sale Price'),
-                                                      store =_store_cfg,
-                                                      multi ='markup',
-                                                      help='Margin is [ sale_price - cost_price ]'),
-                'markup_rate' : fields.function(_compute_all_markup,
-                                            method=True,
-                                            string='Markup rate (%)',
-                                            digits_compute=dp.get_precision('Sale Price'),
-                                            store=_store_cfg,
-                                            multi='markup',
-                                            help='Markup rate is [ margin / sale_price ]'),
-                'cost_price' : fields.function(_compute_all_markup,
-                                               method=True,
-                                               string='Cost Price (incl. BOM)',
-                                               digits_compute=dp.get_precision('Sale Price'),
-                                               store=_store_cfg,
-                                               multi='markup',
-                                               help="The cost is the standard price unless the product is composed, "
-                                                    "in that case it computes the price from its components")}
+    _columns = {
+        'commercial_margin' : fields.function(_compute_all_markup,
+                                              method=True,
+                                              string='Margin',
+                                              digits_compute=dp.get_precision('Sale Price'),
+                                              store =_store_cfg,
+                                              multi ='markup',
+                                              help='Margin is [ sale_price - cost_price ]'),
+        'markup_rate' : fields.function(_compute_all_markup,
+                                        method=True,
+                                        string='Markup rate (%)',
+                                        digits_compute=dp.get_precision('Sale Price'),
+                                        store=_store_cfg,
+                                        multi='markup',
+                                        help='Markup rate is [ margin / sale_price ]'),
+        'cost_price' : fields.function(_compute_all_markup,
+                                       method=True,
+                                       string='Cost Price (incl. BOM)',
+                                       digits_compute=dp.get_precision('Sale Price'),
+                                       store=_store_cfg,
+                                       multi='markup',
+                                       help="The cost is the standard price unless the product is composed, "
+                                       "in that case it computes the price from its components")
+        }
