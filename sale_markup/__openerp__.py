@@ -29,7 +29,7 @@
               'mrp',
               'sale',
               'sale_floor_price'],
- 'description': """doc""",
+ 'description': """display the product and sale markup in the appropriate views""",
  'website': 'http://www.camptocamp.com/',
  'init_xml': [],
  'update_xml': ['sale_view.xml', 'product_view.xml'],
