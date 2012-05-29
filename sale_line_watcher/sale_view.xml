@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record model="ir.ui.view" id="sale_watcher_sale_order_line_form2">
+      <field name="name">sales_line_watcher.view.form2</field>
+      <field name="type">form</field>
+      <field name="model">sale.order.line</field>
+      <field name="inherit_id" ref="sale.view_order_line_form2" />
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='price_unit']" position="replace">
+          <field name="price_unit"
+                 on_change="onchange_price_unit(price_unit ,product_id, discount, product_uom_qty, parent.pricelist_id)"
+                 select="2"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_watcher_sale_order_line_form3">
+      <field name="name">sales_line_watcher.view.form3</field>
+      <field name="type">form</field>
+      <field name="model">sale.order.line</field>
+      <field name="inherit_id" ref="sale.view_order_line_form2" />
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='discount']" position="replace">
+          <field name="discount"
+                 on_change="onchange_discount(price_unit, product_id, discount, product_uom_qty, parent.pricelist_id)"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="sale_watcher_order_form1" model="ir.ui.view">
+      <field name="name">sales_line_watcher.form.floorprice</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="type">form</field>
+      <field name="arch" type="xml">
+        <field name="discount" position="replace">
+          <field name="discount"
+                 on_change="onchange_discount(price_unit, product_id,discount, product_uom_qty, parent.pricelist_id)"/>
+        </field>
+      </field>
+    </record>w
+
+    <record id="sale_watcher_order_form2" model="ir.ui.view">
+      <field name="name">sales_line_watcher.form.floorprice</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="type">form</field>
+      <field name="arch" type="xml">
+        <field name="price_unit" position="replace">
+          <field name="price_unit"
+                 on_change="onchange_price_unit(price_unit ,product_id ,discount, product_uom_qty, parent.pricelist_id)"
+                 select="2"/>
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>

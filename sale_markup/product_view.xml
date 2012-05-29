@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record model="ir.ui.view" id="sale_markup_product_form">
+      <field name="name">product.markup.view.form</field>
+      <field name="type">form</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="product.product_normal_form_view" />
+      <field name="arch" type="xml">
+        <field name="list_price" position="after">
+          <field name="markup_rate"
+                 groups="sale.group_sale_manager"/>
+          <field name="commercial_margin"
+                 groups="sale.group_sale_manager"/>
+        </field>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_markup_product_tree">
+      <field name="name">product.markup.view.tree</field>
+      <field name="type">tree</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="product.product_product_tree_view" />
+      <field name="arch" type="xml">
+        <field name="standard_price" position="after">
+          <field name="markup_rate"
+                 groups="sale.group_sale_manager"/>
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>
