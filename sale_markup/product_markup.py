@@ -67,15 +67,14 @@ class Product(Model):
 
         # cost_price_context will be used by product_get_cost_field if it is installed
         cost_price_context = context.copy().update({'produc_uom': product_uom,
-                                                    'pricelist': pricelist,
                                                     'properties': properties})
-        purchase_prices = self._cost_price(cursor, user, ids, cost_price_context)
+        purchase_prices = self.get_cost_field(cursor, user, ids, cost_price_context)
         # if purchase prices failed returned a dict of default values
         if not purchase_prices: return dict([(id, {'commercial_margin': 0.0,
                                                    'markup_rate': 0.0,
                                                    'cost_price': 0.0,}) for id in ids])
 
-        purchase_price = self._convert_to_foreign_currency(cursor, user, pricelist, purchase_price)
+        purchase_price = self._convert_to_foreign_currency(cursor, user, pricelist, purchase_prices)
         for pr in self.browse(cursor, user, ids):
             res[pr.id] = {}
             if sale_price is None:
@@ -149,20 +148,12 @@ class Product(Model):
                                               digits_compute=dp.get_precision('Sale Price'),
                                               store =_store_cfg,
                                               multi ='markup',
-                                              help='Margin is [ sale_price - cost_price ]'),
+                                              help='Margin is [ sale_price - cost_price ] (not based on historical values)'),
         'markup_rate' : fields.function(_compute_all_markup,
                                         method=True,
                                         string='Markup rate (%)',
                                         digits_compute=dp.get_precision('Sale Price'),
                                         store=_store_cfg,
                                         multi='markup',
-                                        help='Markup rate is [ margin / sale_price ]'),
-        'cost_price' : fields.function(_compute_all_markup,
-                                       method=True,
-                                       string='Cost Price (incl. BOM)',
-                                       digits_compute=dp.get_precision('Sale Price'),
-                                       store=_store_cfg,
-                                       multi='markup',
-                                       help="The cost is the standard price unless the product is composed, "
-                                       "in that case it computes the price from its components")
+                                        help='Markup rate is [ margin / sale_price ] (not based on historical values)'),
         }

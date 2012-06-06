@@ -57,7 +57,8 @@ class SaleOrder(Model):
 
     _store_sums = {
         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
-        'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10)}
+        'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty',
+                'product_id','commercial_margin', 'markup_rate'], 10)}
 
 
     _columns = {'markup_rate': fields.function(_amount_all,
@@ -73,20 +74,18 @@ class SaleOrderLine(Model):
     _inherit = 'sale.order.line'
 
     _columns = {'commercial_margin': fields.float('Margin',
-                                                  digits_compute=dp.get_precision('Sale Price'),
-                                                  help='Margin is [ sale_price - cost_price ],'
-                                                       ' changing it will update the discount'),
-                  'markup_rate': fields.float('Markup Rate (%)',
+                                                digits_compute=dp.get_precision('Sale Price'),
+                                                help='Margin is [ sale_price - cost_price ],'
+                                                     ' changing it will update the discount'),
+                'markup_rate': fields.float('Markup Rate (%)',
+                                            digits_compute=dp.get_precision('Sale Price'),
+                                            help='Margin rate is [ margin / sale_price ],'
+                                                 'changing it will update the discount'),
+                'cost_price': fields.float('Historical Cost Price',
                                               digits_compute=dp.get_precision('Sale Price'),
-                                              help='Margin rate is [ margin / sale_price ],'
-                                                   'changing it will update the discount'),
-                  'cost_price': fields.related('product_id',
-                                               'cost_price',
-                                               type ='float',
-                                               string='Cost Price (incl. BOM)',
-                                               readonly=True,
-                                               help ="The cost is the standard price unless the product is composed,"
-                                                    " in that case it compute the price from its components" )}
+                                              help="The cost price of the product at the time of the creation of the sale order"),
+                 }
+             
 
 
     def onchange_price_unit(self, cursor, uid, ids, price_unit, product_id, discount,
@@ -130,7 +129,7 @@ class SaleOrderLine(Model):
                                                           discount,
                                                           product_uom,
                                                           pricelist)
-
+        
         if product_id:
             product_obj = self.pool.get('product.product')
             if res['value'].has_key('price_unit'):

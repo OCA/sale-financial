@@ -80,7 +80,7 @@ class SaleOrderLine(Model):
                                                            discount, product_uom, pricelist)
 
         self._check_floor_price(cr, uid, res, price_unit, product_id, discount)
-
+        return res
 
     def _check_floor_price(self, cr, uid, result, price_unit, product_id, discount, override_unit_price=True):
         """
