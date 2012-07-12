@@ -4,7 +4,7 @@
 #    Copyright (c) 2011 Camptocamp SA (http://www.camptocamp.com)
 #    All Right Reserved
 #
-#    Author : Yannick Vaucher (Camptocamp)
+#    Author : Yannick Vaucher, Joel Grand-Guillaume
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -35,7 +35,8 @@ class SaleOrder(Model):
     def _amount_all(self, cursor, user, ids, field_name, arg, context = None):
         '''Calculate the markup rate based on sums'''
 
-        context = context or {}
+        if context is None:
+            context = {}
         res = {}
         res = super(SaleOrder, self)._amount_all(cursor, user, ids, field_name, arg, context)
 
@@ -50,6 +51,8 @@ class SaleOrder(Model):
 
 
     def _get_order(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
         result = set()
         for line in self.pool.get('sale.order.line').browse(cr, uid, ids, context=context):
             result.add(line.order_id.id)
@@ -160,6 +163,8 @@ class SaleOrderLine(Model):
                        - discount
                        - properties
         '''
+        if context is None:
+            context = {}
         discount = discount or 0.0
         price_unit = price_unit or 0.0
         res = {}
@@ -188,8 +193,10 @@ class SaleOrderLine(Model):
 
 
     def onchange_markup_rate(self, cursor, uid, ids,
-                             markup, cost_price, price_unit):
+                             markup, cost_price, price_unit, context=None):
         ''' If markup rate change compute the discount '''
+        if context is None:
+            context = {}
         res = {}
         res['value'] = {}
         markup = markup / 100.0
@@ -202,8 +209,10 @@ class SaleOrderLine(Model):
 
 
     def onchange_commercial_margin(self, cursor, uid, ids,
-                                   margin, cost_price, price_unit):
+                                   margin, cost_price, price_unit, context=None):
         ''' If markup rate change compute the discount '''
+        if context is None:
+            context = {}
         res = {}
         res['value'] = {}
         if not price_unit: return {'value': {}}

@@ -4,7 +4,7 @@
 #    Copyright (c) 2011 Camptocamp SA (http://www.camptocamp.com)
 #    All Right Reserved
 #
-#    Author : Yannick Vaucher (Camptocamp)
+#    Author : Yannick Vaucher, Joel Grand-Guillaume
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -29,7 +29,9 @@ import decimal_precision as dp
 class Product(Model):
     _inherit = 'product.product'
 
-    def _convert_to_foreign_currency(self, cursor, user, pricelist, amount_dict):
+    def _convert_to_foreign_currency(self, cursor, user, pricelist, amount_dict, context=None):
+        if context is None:
+            context = {}
         if not pricelist:
             return amount_dict
         pricelist_obj = self.pool.get('product.pricelist')
@@ -60,7 +62,8 @@ class Product(Model):
         '''
         properties = properties or []
         pricelist = pricelist or []
-        context = context or {}
+        if context is None:
+            context = {}
         if isinstance(ids, (int, long)):
             ids =  [ids]
         res = {}
@@ -100,7 +103,8 @@ class Product(Model):
                 -   Product C
         => If we change standard_price of product B, we want to update Product
         A as well..."""
-
+        if context is None:
+            context = {}
         def _get_parent_bom(bom_record):
             """Recursvely find the parent bom"""
             result=[]
@@ -117,8 +121,8 @@ class Product(Model):
         return list(set(ids + self._get_product(cursor, user, final_bom_ids, context)))
 
     def _get_product(self, cursor, user, ids, context = None):
-        context = context or {}
-
+        if context is None:
+            context = {}
         bom_obj = self.pool.get('mrp.bom')
 
         res = {}
@@ -130,6 +134,8 @@ class Product(Model):
         '''
         method for product function field on multi 'markup'
         '''
+        if context is None:
+            context = {}
         res = self.compute_markup(cursor, user, ids, context=context)
         return res
 
