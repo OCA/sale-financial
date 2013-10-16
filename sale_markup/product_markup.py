@@ -116,7 +116,7 @@ class Product(Model):
         bom_obj = self.pool.get('mrp.bom')
         bom_ids = bom_obj.search(cursor, user, [('product_id','in',ids)])
         for bom in bom_obj.browse(cursor, user, bom_ids):
-            res = _get_parent_bom(bom)
+            res += _get_parent_bom(bom)
         final_bom_ids = list(set(res + bom_ids))
         return list(set(ids + self._get_product(cursor, user, final_bom_ids, context)))
 
