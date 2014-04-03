@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (c) 2011 Camptocamp SA (http://www.camptocamp.com)
-#    All Right Reserved
-#
-#    Author : Yannick Vaucher, Joel Grand-Guillaume
+#    Author: Yannick Vaucher, Joel Grand-Guillaume
+#    Copyright 2011 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
