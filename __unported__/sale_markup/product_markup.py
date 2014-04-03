@@ -81,7 +81,7 @@ class Product(orm.Model):
         # installed
         cost_price_context = context.copy()
         cost_price_context.update({
-            'produc_uom': product_uom,
+            'product_uom': product_uom,
             'properties': properties})
         purchase_prices = self.get_cost_field(cr, uid, ids, cost_price_context)
         # if purchase prices failed returned a dict of default values
