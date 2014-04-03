@@ -82,6 +82,12 @@ class SaleOrderLine(Model):
 
     _inherit = 'sale.order.line'
 
+    def _set_break(self, cr, uid, ids, field_name, arg, context=None):
+        return {}
+
+    def _get_break(self, cr, uid, ids, field_name, arg, context=None):
+        return dict.fromkeys(ids, False)
+
     _columns = {
         'commercial_margin': fields.float(
             'Margin',
@@ -98,6 +104,16 @@ class SaleOrderLine(Model):
             digits_compute=dp.get_precision('Sale Price'),
             help='The cost price of the product at the time of the creation '
                  'of the sale order'),
+        # boolean fields to skip onchange loop
+        'break_onchange_discount': fields.function(
+            _get_break, fnct_inv=_set_break,
+            string='Break onchange', type='boolean'),
+        'break_onchange_markup_rate': fields.function(
+            _get_break, fnct_inv=_set_break,
+            string='Break onchange', type='boolean'),
+        'break_onchange_commercial_margin': fields.function(
+            _get_break, fnct_inv=_set_break,
+            string='Break onchange', type='boolean'),
     }
 
     def onchange_price_unit(self, cr, uid, ids, price_unit, product_id,
@@ -124,13 +140,15 @@ class SaleOrderLine(Model):
                 'commercial_margin': round(
                     markup_res['commercial_margin'], _prec(self, cr, uid)),
                 'markup_rate': round(
-                    markup_res['markup_rate'], _prec(self, cr, uid))
+                    markup_res['markup_rate'], _prec(self, cr, uid)),
+                'break_onchange_commercial_margin': True,
+                'break_onchange_markup_rate': True,
             })
         return res
 
     def onchange_discount(self, cr, uid, ids,
                           price_unit, product_id, discount, product_uom,
-                          pricelist, **kwargs):
+                          pricelist, break_onchange_discount, **kwargs):
         """
         If discount changes, compute the new markup rate and commercial margin.
         """
@@ -138,7 +156,9 @@ class SaleOrderLine(Model):
                     ).onchange_discount(cr, uid, ids,
                                         price_unit, product_id, discount,
                                         product_uom, pricelist)
-        if product_id:
+        if break_onchange_discount:
+            res['value']['break_onchange_markup_rate'] = False
+        elif product_id:
             product_obj = self.pool['product.product']
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
@@ -155,7 +175,9 @@ class SaleOrderLine(Model):
                 'commercial_margin': round(
                     markup_res['commercial_margin'], _prec(self, cr, uid)),
                 'markup_rate': round(
-                    markup_res['markup_rate'], _prec(self, cr, uid))
+                    markup_res['markup_rate'], _prec(self, cr, uid)),
+                'break_onchange_commercial_margin': True,
+                'break_onchange_markup_rate': True,
             })
         return res
 
@@ -199,15 +221,22 @@ class SaleOrderLine(Model):
                     int(markup_res['markup_rate'] * 100) / 100.0,
                     _prec(self, cr, uid)),
                 'cost_price': round(
-                    markup_res['cost_price'], _prec(self, cr, uid))
+                    markup_res['cost_price'], _prec(self, cr, uid)),
+                'break_onchange_commercial_margin': True,
+                'break_onchange_markup_rate': True,
             })
 
         return res
 
     def onchange_markup_rate(self, cr, uid, ids,
-                             markup, cost_price, price_unit, context=None):
+                             markup, cost_price, price_unit,
+                             break_onchange_markup_rate, context=None):
         """ If markup rate changes compute the discount """
         res = {'value': {}}
+        if break_onchange_markup_rate:
+            res['value']['break_onchange_markup_rate'] = False
+            return res
+
         markup = markup / 100.0
         if price_unit and not markup == 1:
             discount = 1 + cost_price / (markup - 1) / price_unit
@@ -216,22 +245,29 @@ class SaleOrderLine(Model):
                 'discount': round(
                     discount * 100,  _prec(self, cr, uid)),
                 'commercial_margin': round(
-                    sale_price - cost_price, _prec(self, cr, uid))
+                    sale_price - cost_price, _prec(self, cr, uid)),
+                'break_onchange_discount': True,
+                'break_onchange_markup_rate': True,
             })
         return res
 
     def onchange_commercial_margin(self, cr, uid, ids,
                                    margin, cost_price, price_unit,
+                                   break_onchange_commercial_margin,
                                    context=None):
         """ If commercial margin changes compute the discount """
         res = {'value': {}}
-        if price_unit:
+        if break_onchange_commercial_margin:
+            res['value']['break_onchange_commercial_margin'] = False
+        elif price_unit:
             discount = 1 - ((cost_price + margin) / price_unit)
             sale_price = price_unit * (1 - discount)
             res['value'].update({
                 'discount': round(
                     discount * 100,  _prec(self, cr, uid)),
                 'markup_rate': round(
-                    margin / (sale_price or 1.0) * 100, _prec(self, cr, uid))
+                    margin / (sale_price or 1.0) * 100, _prec(self, cr, uid)),
+                'break_onchange_discount': True,
+                'break_onchange_markup_rate': True,
             })
         return res

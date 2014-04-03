@@ -67,13 +67,16 @@
           position="after">
           <group string="Markup" groups="base.group_sale_manager">
             <field name="commercial_margin"
-                   on_change="onchange_commercial_margin(commercial_margin, cost_price, price_unit)"
+                   on_change="onchange_commercial_margin(commercial_margin, cost_price, price_unit, break_onchange_commercial_margin)"
                    groups="base.group_sale_manager"/>
             <field name="markup_rate"
-                   on_change="onchange_markup_rate(markup_rate, cost_price, price_unit)"
+                   on_change="onchange_markup_rate(markup_rate, cost_price, price_unit, break_onchange_markup_rate)"
                    groups="base.group_sale_manager"/>
             <field name="cost_price"
                    groups="base.group_sale_manager" invisible="1"/>
+             <field name="break_onchange_commercial_margin" invisible="True"/>
+             <field name="break_onchange_markup_rate" invisible="True"/>
+             <field name="break_onchange_discount" invisible="True"/>
           </group>
         </xpath>
         <xpath expr="//field[@name='product_uom_qty']" position="attributes">
