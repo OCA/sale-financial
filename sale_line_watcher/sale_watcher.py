@@ -25,20 +25,20 @@ class SaleOrderLine(Model):
     _inherit = 'sale.order.line'
 
     def onchange_price_unit(self, cr, uid, ids,
-                            price_unit, product_id, discount, product_uom, pricelist,
-                            **kwargs):
-        '''
+                            price_unit, product_id, discount, product_uom,
+                            pricelist, **kwargs):
+        """
         Place holder function for onchange unit price
-        '''
+        """
         res = {}
         return res
 
     def onchange_discount(self, cr, uid, ids,
-                          price_unit, product_id, discount, product_uom, pricelist,
-                          **kwargs):
-        '''
+                          price_unit, product_id, discount, product_uom,
+                          pricelist, **kwargs):
+        """
         Place holder function for onchange discount
-        '''
+        """
         res = {}
         return res
 

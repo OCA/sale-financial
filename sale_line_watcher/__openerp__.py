@@ -23,11 +23,15 @@
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'Hidden',
- 'complexity': "normal",  # easy, normal, expert
+ 'complexity': "normal",
  'depends' : ['base', 'sale'],
- 'description': """Add new base onchange methods on sale_order class
+ 'description': """
+Sale order line watcher
+=======================
 
- onchange_price_unit and onchange_discount both accept the following arguments:
+Add new base onchange methods on sale_order class
+
+onchange_price_unit and onchange_discount both accept the following arguments:
  (self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs)
 """,
  'website': 'http://www.camptocamp.com',
@@ -35,7 +39,7 @@
  'update_xml': ['sale_view.xml'],
  'demo_xml': [],
  'tests': [],
- 'installable': False,
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
