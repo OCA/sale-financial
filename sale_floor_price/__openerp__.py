@@ -22,7 +22,7 @@
  'version' : '5.1',
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
- 'category': 'Tool',
+ 'category': 'Sales Management',
  'complexity': "normal",
  'depends' : ['stock','product','sale', 'sale_line_watcher'],
  'description': """
