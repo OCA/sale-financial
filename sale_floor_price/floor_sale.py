@@ -19,8 +19,8 @@
 #
 ##############################################################################
 
-from osv.orm import Model
-from tools.translate import _
+from openerp.osv.orm import Model
+from openerp.tools.translate import _
 
 
 class SaleOrderLine(Model):

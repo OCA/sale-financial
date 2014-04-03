@@ -19,12 +19,11 @@
 #
 ##############################################################################
 
-from osv import fields
-from osv.orm import Model
+from openerp.osv import orm, fields
 import decimal_precision as dp
 
 
-class Product(Model):
+class Product(orm.Model):
     """Add floor price to product"""
 
     _inherit = 'product.product'
