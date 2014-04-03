@@ -29,13 +29,13 @@ def _prec(obj, cr, uid, mode=None):
     return obj.pool['decimal.precision'].precision_get(cr, uid, mode)
 
 
-class SalesOrder(Model):
+class SaleOrder(Model):
     _inherit = 'sale.order'
 
     def _amount_all(self, cr, user, ids, field_name, arg, context=None):
         """Calculate the markup rate based on sums"""
 
-        res = super(SalesOrder, self
+        res = super(SaleOrder, self
                     )._amount_all(cr, user, ids, field_name, arg,
                                   context=context)
 
@@ -78,7 +78,7 @@ class SalesOrder(Model):
     }
 
 
-class SalesOrderLine(Model):
+class SaleOrderLine(Model):
 
     _inherit = 'sale.order.line'
 
@@ -174,7 +174,7 @@ class SalesOrderLine(Model):
         """
         discount = discount or 0.0
         price_unit = price_unit or 0.0
-        res = super(SalesOrderLine, self
+        res = super(SaleOrderLine, self
                     ).product_id_change(cr, uid, ids, pricelist, product, qty,
                                         uom, qty_uos, uos, name, partner_id,
                                         lang, update_tax, date_order,
