@@ -23,16 +23,18 @@
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'Tool',
- 'complexity': "normal",  # easy, normal, expert
+ 'complexity': "normal",
  'depends' : ['stock','product','sale', 'sale_line_watcher'],
- 'description': """Set a minimal price on product and raise a warning if sale price is too low""",
+ 'description': """
+Floor price on product
+======================
+
+Set a minimal price on product and raise a warning if sale price is too low
+""",
  'website': 'http://www.camptocamp.com',
- 'init_xml': [],
- 'update_xml': ['product_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
+ 'data': ['product_view.xml'],
+ 'test': [],
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
-
