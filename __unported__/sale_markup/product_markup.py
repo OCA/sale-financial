@@ -19,12 +19,11 @@
 #
 ##############################################################################
 
-from osv import fields
-from osv.orm import Model
+from openerp.osv import orm, fields
 import decimal_precision as dp
 
 
-class Product(Model):
+class Product(orm.Model):
     _inherit = 'product.product'
 
     def _convert_to_foreign_currency(self, cr, uid, pricelist,
