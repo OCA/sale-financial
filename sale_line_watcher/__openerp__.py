@@ -29,10 +29,24 @@
 Sale order line watcher
 =======================
 
-Add new base onchange methods on sale_order class
+Add new base onchange methods on Sale Order Line form.
 
-onchange_price_unit and onchange_discount can be extendend with
-additionnal contexts using web_context_tunnel module
+`onchange_price_unit` and `onchange_discount`
+
+Those onchanges can be extendend with additionnal contexts using
+`web_context_tunnel` module
+
+Dependencies
+------------
+
+`web_context_tunnel` module from lp:server-env-tools branch
+
+Contributors
+------------
+
+* Nicolas Bessi <nicolas.bessi@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
+
 """,
  'website': 'http://www.camptocamp.com',
  'init_xml': [],
