@@ -32,7 +32,13 @@
 Floor price on product
 ======================
 
-Set a minimal price on product and raise a warning if sale price is too low
+Set a minimal price on product and raise a warning if sale price is too low.
+
+Contributors
+------------
+
+* Joël Grand-Guillaume <joel.grandguillaume@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
 """,
  'website': 'http://www.camptocamp.com',
  'data': ['product_view.xml',
