@@ -56,21 +56,19 @@
       <field name="inherit_id" ref="sale.view_order_form" />
       <field name="arch" type="xml">
         <xpath expr="//field[@name='product_id']"
-          position="replace">
-          <field name="product_id"
-                 context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'shop':parent.shop_id, 'uom':product_uom}"
-                 groups="base.group_user"
-                 on_change="product_id_change(parent.pricelist_id, product_id, product_uom_qty, product_uom, product_uos_qty, product_uos, name, parent.partner_id, False, True, parent.date_order, product_packaging, parent.fiscal_position, False, price_unit, discount, context)" />
-          <newline/>
+               position="attributes">
+          <attribute name="context_markup">{'discount': discount, 'price_unit': price_unit}</attribute>
         </xpath>
         <xpath expr="//field[@name='order_line']/form//field[@name='name']"
-          position="after">
+               position="after">
           <group string="Markup" groups="base.group_sale_manager">
             <field name="commercial_margin"
-                   on_change="onchange_commercial_margin(commercial_margin, cost_price, price_unit, break_onchange_commercial_margin)"
+                   context="{'commercial_margin': commercial_margin, 'cost_price': cost_price, 'price_unit': price_unit, 'break_onchange': break_onchange_commercial_margin}"
+                   on_change="onchange_commercial_margin(context)"
                    groups="base.group_sale_manager"/>
             <field name="markup_rate"
-                   on_change="onchange_markup_rate(markup_rate, cost_price, price_unit, break_onchange_markup_rate)"
+                   context="{'markup_rate': markup_rate, 'cost_price': cost_price, 'price_unit': price_unit, 'break_onchange': break_onchange_markup_rate}"
+                   on_change="onchange_markup_rate(context)"
                    groups="base.group_sale_manager"/>
             <field name="cost_price"
                    groups="base.group_sale_manager" invisible="1"/>
@@ -80,7 +78,7 @@
           </group>
         </xpath>
         <xpath expr="//field[@name='product_uom_qty']" position="attributes">
-          <attribute name="on_change">product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id,False,True,parent.date_order,product_packaging,parent.fiscal_position,False,price_unit,discount,context)</attribute>
+          <attribute name="context_markup">{'discount': discount, 'price_unit': price_unit}</attribute>
         </xpath>
       </field>
     </record>
