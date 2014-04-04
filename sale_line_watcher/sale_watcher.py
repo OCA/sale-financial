@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from osv.orm import Model
+from openerp.osv.orm import Model
 
 class SaleOrderLine(Model):
     _inherit = 'sale.order.line'
