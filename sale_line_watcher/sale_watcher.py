@@ -24,21 +24,15 @@ from osv.orm import Model
 class SaleOrderLine(Model):
     _inherit = 'sale.order.line'
 
-    def onchange_price_unit(self, cr, uid, ids,
-                            price_unit, product_id, discount, product_uom,
-                            pricelist, **kwargs):
+    def onchange_price_unit(self, cr, uid, ids, context=None):
         """
         Place holder function for onchange unit price
         """
-        res = {}
-        return res
+        return {}
 
-    def onchange_discount(self, cr, uid, ids,
-                          price_unit, product_id, discount, product_uom,
-                          pricelist, **kwargs):
+    def onchange_discount(self, cr, uid, ids, context=None):
         """
         Place holder function for onchange discount
         """
-        res = {}
-        return res
+        return {}
 

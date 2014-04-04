@@ -24,15 +24,15 @@
  'maintainer': 'Camptocamp',
  'category': 'Hidden',
  'complexity': "normal",
- 'depends' : ['base', 'sale'],
+ 'depends' : ['base', 'sale', 'web_context_tunnel'],
  'description': """
 Sale order line watcher
 =======================
 
 Add new base onchange methods on sale_order class
 
-onchange_price_unit and onchange_discount both accept the following arguments:
- (self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs)
+onchange_price_unit and onchange_discount can be extendend with
+additionnal contexts using web_context_tunnel module
 """,
  'website': 'http://www.camptocamp.com',
  'init_xml': [],
