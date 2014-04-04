@@ -24,7 +24,10 @@
  'maintainer': 'Camptocamp',
  'category': 'Sales Management',
  'complexity': "normal",
- 'depends' : ['stock','product','sale', 'sale_line_watcher'],
+ 'depends' : [
+     'stock','product','sale',
+     'sale_line_watcher'
+     ],
  'description': """
 Floor price on product
 ======================
@@ -32,7 +35,9 @@ Floor price on product
 Set a minimal price on product and raise a warning if sale price is too low
 """,
  'website': 'http://www.camptocamp.com',
- 'data': ['product_view.xml'],
+ 'data': ['product_view.xml',
+          'sale_view.xml',
+          ],
  'test': [],
  'installable': True,
  'auto_install': False,

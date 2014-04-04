@@ -57,8 +57,7 @@ class SaleOrderLine(Model):
         res['value']['discount'] = 0.0
         return res
 
-    def onchange_price_unit(self, cr, uid, ids, price_unit, product_id,
-                            discount, product_uom, pricelist, **kwargs):
+    def onchange_price_unit(self, cr, uid, ids, context=None, **kwargs):
         """
         If price unit change, check that it is not < floor_price_limit of
         related product.
@@ -67,22 +66,28 @@ class SaleOrderLine(Model):
         """
         override_unit_price = kwargs.pop('override_unit_price', True)
         res = super(SaleOrderLine, self
-                    ).onchange_price_unit(cr, uid, ids, price_unit,
-                                          product_id, discount, product_uom,
-                                          pricelist, **kwargs)
+                    ).onchange_price_unit(cr, uid, ids, context=context, **kwargs)
+        price_unit = context.get('price_unit')
+        product_id = context.get('product_id')
+        discount = context.get('discount')
         self._check_floor_price(cr, uid, res, price_unit, product_id, discount,
                                 override_unit_price)
         return res
 
-    def onchange_discount(self, cr, uid, ids, price_unit, product_id, discount,
-                          product_uom, pricelist, **kwargs):
+    def onchange_discount(self, cr, uid, ids, context=None):
         """
         If discount change, check that final price is not < floor_price_limit
         of related product
+
+        context price_unit, product_id, discount
         """
+        if context is None:
+            context = {}
         res = super(SaleOrderLine, self
-                    ).onchange_discount(cr, uid, ids, price_unit, product_id,
-                                        discount, product_uom, pricelist)
+                    ).onchange_discount(cr, uid, ids, context=context)
+        price_unit = context.get('price_unit')
+        product_id = context.get('product_id')
+        discount = context.get('discount')
 
         self._check_floor_price(cr, uid, res, price_unit, product_id, discount)
         return res
