@@ -116,17 +116,30 @@ class SaleOrderLine(Model):
             string='Break onchange', type='boolean'),
     }
 
-    def onchange_price_unit(self, cr, uid, ids, price_unit, product_id,
-                            discount, product_uom, pricelist, **kwargs):
+    def onchange_price_unit(self, cr, uid, ids, context=None, **kwargs):
         """
         If price unit changes, compute the new markup rate and
         commercial margin
+
+        context arguments:
+            price_unit
+            product_id
+            discount
+            product_uom
+            pricelist
         """
+        if context is None:
+            context = {}
         res = super(SaleOrderLine, self
-                    ).onchange_price_unit(cr, uid, ids, price_unit, product_id,
-                                          discount, product_uom, pricelist)
+                    ).onchange_price_unit(cr, uid, ids, context=context)
+        product_id = context.get('product_id')
         if product_id:
+            price_unit = context.get('price_unit')
+            discount = context.get('discount')
+            product_uom = context.get('product_uom')
+            pricelist = context.get('pricelist')
             product_obj = self.pool['product.product']
+
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
@@ -146,19 +159,31 @@ class SaleOrderLine(Model):
             })
         return res
 
-    def onchange_discount(self, cr, uid, ids,
-                          price_unit, product_id, discount, product_uom,
-                          pricelist, break_onchange_discount, **kwargs):
+    def onchange_discount(self, cr, uid, ids, context=None, **kwargs):
         """
         If discount changes, compute the new markup rate and commercial margin.
+
+        context arguments:
+            product_id
+            price_unit
+            discount
+            product_uom
+            pricelist
+            break_onchange
         """
+        if context is None:
+            context = {}
         res = super(SaleOrderLine, self
-                    ).onchange_discount(cr, uid, ids,
-                                        price_unit, product_id, discount,
-                                        product_uom, pricelist)
-        if break_onchange_discount:
-            res['value']['break_onchange_markup_rate'] = False
+                    ).onchange_discount(cr, uid, ids, context=context)
+        product_id = context.get('product_id')
+        if context.get('break_onchange'):
+            res['value']['break_onchange_discount'] = False
         elif product_id:
+            price_unit = context.get('price_unit')
+            discount = context.get('discount')
+            product_uom = context.get('product_uom')
+            pricelist = context.get('pricelist')
+
             product_obj = self.pool['product.product']
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
@@ -185,8 +210,8 @@ class SaleOrderLine(Model):
                           uom=False, qty_uos=0, uos=False, name='',
                           partner_id=False, lang=False, update_tax=True,
                           date_order=False, packaging=False,
-                          fiscal_position=False, flag=False, discount=None,
-                          price_unit=None, context=None):
+                          fiscal_position=False, flag=False,
+                          context=None):
         """
         Overload method
         If product changes, compute the new markup, cost_price and
@@ -194,8 +219,8 @@ class SaleOrderLine(Model):
         Added params : - price_unit,
                        - discount
         """
-        discount = discount or 0.0
-        price_unit = price_unit or 0.0
+        if context is None:
+            context = {}
         res = super(SaleOrderLine, self
                     ).product_id_change(cr, uid, ids, pricelist, product, qty,
                                         uom, qty_uos, uos, name, partner_id,
@@ -203,6 +228,8 @@ class SaleOrderLine(Model):
                                         packaging, fiscal_position, flag,
                                         context=context)
         if product:
+            price_unit = context.get('price_unit', 0.0)
+            discount = context.get('discount', 0.0)
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
@@ -228,17 +255,27 @@ class SaleOrderLine(Model):
 
         return res
 
-    def onchange_markup_rate(self, cr, uid, ids,
-                             markup, cost_price, price_unit,
-                             break_onchange_markup_rate, context=None):
-        """ If markup rate changes compute the discount """
+    def onchange_markup_rate(self, cr, uid, ids, context=None):
+        """ If markup rate changes compute the discount
+
+        context arguments:
+            markup
+            cost_price
+            price_unit
+            break_onchange
+        """
+        if context is None:
+            context = {}
         res = {'value': {}}
-        if break_onchange_markup_rate:
+        if context.get('break_onchange'):
             res['value']['break_onchange_markup_rate'] = False
             return res
 
+        markup = context.get('markup')
+        price_unit = context.get('price_unit')
         markup = markup / 100.0
         if price_unit and not markup == 1:
+            cost_price = context.get('cost_price')
             discount = 1 + cost_price / (markup - 1) / price_unit
             sale_price = price_unit * (1 - discount)
             res['value'].update({
@@ -251,15 +288,24 @@ class SaleOrderLine(Model):
             })
         return res
 
-    def onchange_commercial_margin(self, cr, uid, ids,
-                                   margin, cost_price, price_unit,
-                                   break_onchange_commercial_margin,
-                                   context=None):
-        """ If commercial margin changes compute the discount """
+    def onchange_commercial_margin(self, cr, uid, ids, context=None):
+        """ If commercial margin changes compute the discount
+
+        context arguments:
+            commercial_margin
+            cost_price
+            price_unit
+            break_onchange
+        """
+        if context is None:
+            context = {}
         res = {'value': {}}
-        if break_onchange_commercial_margin:
+        price_unit = context.get('price_unit')
+        if context.get('break_onchange'):
             res['value']['break_onchange_commercial_margin'] = False
         elif price_unit:
+            margin = context.get('commercial_margin')
+            cost_price = context.get('cost_price')
             discount = 1 - ((cost_price + margin) / price_unit)
             sale_price = price_unit * (1 - discount)
             res['value'].update({

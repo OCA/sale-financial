@@ -29,7 +29,9 @@
      'product_get_cost_field',
      'mrp',
      'sale',
-     'sale_floor_price'],
+     'web_context_tunnel',
+     'sale_line_watcher',
+     ],
  'description': """
 Markup rate on product and sales
 ================================
@@ -37,8 +39,10 @@ Markup rate on product and sales
 Display the product and sale markup in the appropriate views
 """,
  'website': 'http://www.camptocamp.com/',
- 'data': ['sale_view.xml',
-          'product_view.xml'],
+ 'data': [
+     'sale_view.xml',
+     'product_view.xml',
+     ],
  'test': [],
  'installable': True,
  'auto_install': False,
