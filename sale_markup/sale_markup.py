@@ -271,7 +271,7 @@ class SaleOrderLine(Model):
             res['value']['break_onchange_markup_rate'] = False
             return res
 
-        markup = context.get('markup')
+        markup = context.get('markup_rate')
         price_unit = context.get('price_unit')
         markup = markup / 100.0
         if price_unit and not markup == 1:
