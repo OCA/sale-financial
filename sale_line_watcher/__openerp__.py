@@ -23,19 +23,37 @@
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'Hidden',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['base', 'sale'],
- 'description': """Add new base onchange methods on sale_order class
+ 'complexity': "normal",
+ 'depends' : ['base', 'sale', 'web_context_tunnel'],
+ 'description': """
+Sale order line watcher
+=======================
 
- onchange_price_unit and onchange_discount both accept the following arguments:
- (self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs)
+Add new base onchange methods on Sale Order Line form.
+
+`onchange_price_unit` and `onchange_discount`
+
+Those onchanges can be extendend with additionnal contexts using
+`web_context_tunnel` module
+
+Dependencies
+------------
+
+`web_context_tunnel` module from lp:server-env-tools branch
+
+Contributors
+------------
+
+* Nicolas Bessi <nicolas.bessi@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
+
 """,
  'website': 'http://www.camptocamp.com',
  'init_xml': [],
  'update_xml': ['sale_view.xml'],
  'demo_xml': [],
  'tests': [],
- 'installable': False,
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
