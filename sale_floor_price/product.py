@@ -19,15 +19,19 @@
 #
 ##############################################################################
 
-from osv import fields
-from osv.orm import Model
+from openerp.osv import orm, fields
 import decimal_precision as dp
 
-class Product(Model):
+
+class Product(orm.Model):
     """Add floor price to product"""
+
     _inherit = 'product.product'
-    _columns = {'floor_price_limit': fields.float('Floor Price',
-                                                  digits_compute=dp.get_precision('Sale Price'),
-                                                  help="Floor price for this product:"
-                                                  "salesmen will not be able to make"
-                                                  "a discount in SO below that price.")}
+
+    _columns = {
+        'floor_price_limit': fields.float(
+            'Floor Price',
+            digits_compute=dp.get_precision('Sale Price'),
+            help="Floor price for this product: salesmen will not be able to "
+                 "make a discount in SO below that price.")
+    }
