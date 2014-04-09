@@ -23,19 +23,28 @@
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'version',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['base',
-              'product_get_cost_field',
-              'mrp',
-              'sale',
-              'sale_floor_price'],
- 'description': """display the product and sale markup in the appropriate views""",
+ 'complexity': "normal",
+ 'depends' : [
+     'base',
+     'product_get_cost_field',
+     'mrp',
+     'sale',
+     'web_context_tunnel',
+     'sale_line_watcher',
+     ],
+ 'description': """
+Markup rate on product and sales
+================================
+
+Display the product and sale markup in the appropriate views
+""",
  'website': 'http://www.camptocamp.com/',
- 'init_xml': [],
- 'update_xml': ['sale_view.xml', 'product_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
+ 'data': [
+     'sale_view.xml',
+     'product_view.xml',
+     ],
+ 'test': [],
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
