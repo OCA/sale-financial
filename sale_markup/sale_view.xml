@@ -80,9 +80,9 @@
                    groups="base.group_sale_manager"/>
             <field name="cost_price"
                    groups="base.group_sale_manager" invisible="1"/>
-             <field name="break_onchange_commercial_margin"/>
-             <field name="break_onchange_markup_rate"/>
-             <field name="break_onchange_discount"/>
+             <field name="break_onchange_commercial_margin" invisible="1"/>
+             <field name="break_onchange_markup_rate" invisible="1"/>
+             <field name="break_onchange_discount" invisible="1"/>
           </group>
         </xpath>
         <xpath expr="//field[@name='product_uom_qty']" position="attributes">
