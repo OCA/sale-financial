@@ -263,6 +263,7 @@ class SaleOrderLine(Model):
                                         lang, update_tax, date_order,
                                         packaging, fiscal_position, flag,
                                         context=context)
+
         if product:
             price_unit = context.get('price_unit', 0.0)
             discount = context.get('discount', 0.0)
@@ -378,7 +379,7 @@ class SaleOrderLine(Model):
             discount = context.get('discount')
 
             new_discount = 1 - ((cost_price + margin) / price_unit)
-            sale_price = price_unit * (1 - discount)
+            sale_price = price_unit * (1 - new_discount)
 
             new_discount = round(new_discount * 100,  _prec(self, cr, uid))
             if not float_compare(discount, new_discount,
