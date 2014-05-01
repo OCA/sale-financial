@@ -145,7 +145,8 @@ class SaleOrderLine(Model):
             product_obj = self.pool['product.product']
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
-
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
@@ -207,6 +208,8 @@ class SaleOrderLine(Model):
             margin = context.get('commercial_margin', 0.0)
 
             product_obj = self.pool['product.product']
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             if 'discount' in res['value']:
@@ -270,6 +273,8 @@ class SaleOrderLine(Model):
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
 
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
