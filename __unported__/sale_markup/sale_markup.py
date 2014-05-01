@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp.osv.orm import Model, fields
-import decimal_precision as dp
+from openerp.addons import decimal_precision as dp
 from openerp.tools import float_compare
 
 
