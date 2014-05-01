@@ -33,12 +33,10 @@ def _prec(obj, cr, uid, mode=None):
 class SaleOrder(Model):
     _inherit = 'sale.order'
 
-    def _amount_all(self, cr, user, ids, field_name, arg, context=None):
+    def _amount_markup(self, cr, user, ids, field_name, arg, context=None):
         """Calculate the markup rate based on sums"""
 
-        res = super(SaleOrder, self
-                    )._amount_all(cr, user, ids, field_name, arg,
-                                  context=context)
+        res = dict.fromkeys(ids, {})
 
         for sale_order in self.browse(cr, user, ids):
             cost_sum = 0.0
@@ -71,11 +69,11 @@ class SaleOrder(Model):
 
     _columns = {
         'markup_rate': fields.function(
-            _amount_all,
+            _amount_markup,
             string='Markup',
             digits_compute=dp.get_precision('Sale Price'),
             store=_store_sums,
-            multi='sums'),
+            multi='sums_markup'),
     }
 
 
