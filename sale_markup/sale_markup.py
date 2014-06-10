@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp.osv.orm import Model, fields
-import decimal_precision as dp
+from openerp.addons import decimal_precision as dp
 from openerp.tools import float_compare
 
 
@@ -33,12 +33,10 @@ def _prec(obj, cr, uid, mode=None):
 class SaleOrder(Model):
     _inherit = 'sale.order'
 
-    def _amount_all(self, cr, user, ids, field_name, arg, context=None):
+    def _amount_markup(self, cr, user, ids, field_name, arg, context=None):
         """Calculate the markup rate based on sums"""
 
-        res = super(SaleOrder, self
-                    )._amount_all(cr, user, ids, field_name, arg,
-                                  context=context)
+        res = dict.fromkeys(ids, {})
 
         for sale_order in self.browse(cr, user, ids):
             cost_sum = 0.0
@@ -61,21 +59,21 @@ class SaleOrder(Model):
         return list(result)
 
     _store_sums = {
-        'sale.order': (lambda self, cr, uid, ids, c={}: ids,
+        'sale.order': (lambda self, cr, uid, ids, c=None: ids,
                        ['order_line'], 10),
         'sale.order.line': (_get_order,
                             ['price_unit', 'tax_id', 'discount',
-                             'product_uom_qty', 'product_id',
+                             'product_uom_qty', 'product_id', 'order_id',
                              'commercial_margin', 'markup_rate'], 10)
     }
 
     _columns = {
         'markup_rate': fields.function(
-            _amount_all,
+            _amount_markup,
             string='Markup',
             digits_compute=dp.get_precision('Sale Price'),
             store=_store_sums,
-            multi='sums'),
+            multi='sums_markup'),
     }
 
 
@@ -145,7 +143,8 @@ class SaleOrderLine(Model):
             product_obj = self.pool['product.product']
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
-
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
@@ -207,6 +206,8 @@ class SaleOrderLine(Model):
             margin = context.get('commercial_margin', 0.0)
 
             product_obj = self.pool['product.product']
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             if 'discount' in res['value']:
@@ -263,12 +264,15 @@ class SaleOrderLine(Model):
                                         lang, update_tax, date_order,
                                         packaging, fiscal_position, flag,
                                         context=context)
+
         if product:
             price_unit = context.get('price_unit', 0.0)
             discount = context.get('discount', 0.0)
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
 
+            if not 'value' in res:
+                res['value'] = {}
             if 'price_unit' in res['value']:
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
@@ -378,7 +382,7 @@ class SaleOrderLine(Model):
             discount = context.get('discount')
 
             new_discount = 1 - ((cost_price + margin) / price_unit)
-            sale_price = price_unit * (1 - discount)
+            sale_price = price_unit * (1 - new_discount)
 
             new_discount = round(new_discount * 100,  _prec(self, cr, uid))
             if not float_compare(discount, new_discount,

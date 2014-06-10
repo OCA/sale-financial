@@ -55,15 +55,15 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale.view_order_form" />
       <field name="arch" type="xml">
-        <xpath expr="//field[@name='product_id']"
+        <xpath expr="//field[@name='order_line']/form//field[@name='product_id']"
                position="attributes">
-          <attribute name="context_markup">{'discount': discount, 'price_unit': price_unit}</attribute>
+          <attribute name="context_markup">{'discount': discount, 'price_unit': price_unit, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin}</attribute>
         </xpath>
-        <xpath expr="//field[@name='price_unit']"
+        <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']"
                position="attributes">
           <attribute name="context_markup">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin}</attribute>
         </xpath>
-        <xpath expr="//field[@name='discount']"
+        <xpath expr="//field[@name='order_line']/form//field[@name='discount']"
                position="attributes">
           <attribute name="context_markup">{'product_id': product_id, 'price_unit': price_unit, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin, 'break_onchange': break_onchange_discount}</attribute>
         </xpath>
@@ -85,7 +85,7 @@
              <field name="break_onchange_discount" invisible="1"/>
           </group>
         </xpath>
-        <xpath expr="//field[@name='product_uom_qty']" position="attributes">
+        <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="attributes">
           <attribute name="context_markup">{'discount': discount, 'price_unit': price_unit, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin}</attribute>
         </xpath>
       </field>

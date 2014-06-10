@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-import decimal_precision as dp
+from openerp.addons import decimal_precision as dp
 
 
 class Product(orm.Model):
@@ -58,7 +58,7 @@ class Product(orm.Model):
         """
         if not sale_price:
             return 0.0
-        return sale_price - purchase_price / sale_price * 100
+        return (sale_price - purchase_price) / sale_price * 100
 
     def compute_markup(self, cr, uid, ids,
                        product_uom=None, pricelist=None, sale_price=None,
