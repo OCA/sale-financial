@@ -59,11 +59,11 @@ class SaleOrder(Model):
         return list(result)
 
     _store_sums = {
-        'sale.order': (lambda self, cr, uid, ids, c={}: ids,
+        'sale.order': (lambda self, cr, uid, ids, c=None: ids,
                        ['order_line'], 10),
         'sale.order.line': (_get_order,
                             ['price_unit', 'tax_id', 'discount',
-                             'product_uom_qty', 'product_id',
+                             'product_uom_qty', 'product_id', 'order_id',
                              'commercial_margin', 'markup_rate'], 10)
     }
 
