@@ -42,8 +42,8 @@ class SaleOrder(Model):
             cost_sum = 0.0
             sale_sum = 0.0
             for line in sale_order.order_line:
-                cost_sum += line.cost_price
-                sale_sum += line.price_unit * (100 - line.discount) / 100.0
+                cost_sum += line.product_uom_qty * line.cost_price
+                sale_sum += line.product_uom_qty * (line.price_unit * (100 - line.discount) / 100.0)
             markup_rate = ((sale_sum - cost_sum) / sale_sum * 100 if sale_sum
                            else 0.0)
             res[sale_order.id]['markup_rate'] = markup_rate
