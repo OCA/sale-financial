@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 ##############################################################################
 #
-#    Sale Credit Limit module for OpenERP
-#    Copyright (C) 2013 Akretion (http://www.akretion.com)
+#    Sale Credit Limit module for Odoo/OpenERP
+#    Copyright (C) 2013-2014 Akretion (http://www.akretion.com)
 #    @author Alexis de Lattre <alexis.delattre@akretion.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -38,11 +38,9 @@ Please contact Alexis de Lattre from Akretion <alexis.delattre@akretion.com> for
     'author': 'Akretion',
     'website': 'http://www.akretion.com',
     'depends': ['sale'],
-    'data': [
-    ],
-    'demo': [],
-    'images': [
-        ],
+    'data': [],
+    'demo': [],  # TODO add demo data
+    'images': [],
     'installable': True,
     'active': False,
     'application': True,
