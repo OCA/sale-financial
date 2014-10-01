@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <!-- set context for on_change using web_context_tunnel -->
+    <record model="ir.ui.view" id="sale_watcher_sale_order_line_form2">
+      <field name="name">sales_line_watcher.view.form2</field>
+      <field name="model">sale.order.line</field>
+      <field name="inherit_id" ref="sale.view_order_line_form2" />
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='price_unit']" position="attributes">
+          <attribute name="context_floor_price">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount}</attribute>
+        </xpath>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="sale_watcher_sale_order_line_form3">
+      <field name="name">sales_line_watcher.view.form3</field>
+      <field name="model">sale.order.line</field>
+      <field name="inherit_id" ref="sale.view_order_line_form2" />
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='discount']" position="attributes">
+          <attribute name="context_floor_price">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount}</attribute>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="sale_watcher_order_form1" model="ir.ui.view">
+      <field name="name">sales_line_watcher.form.floorprice</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="arch" type="xml">
+        <field name="discount" position="attributes">
+          <attribute name="context_floor_price">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount}</attribute>
+        </field>
+      </field>
+    </record>
+
+    <record id="sale_watcher_order_form2" model="ir.ui.view">
+      <field name="name">sales_line_watcher.form.floorprice</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="arch" type="xml">
+        <field name="price_unit" position="attributes">
+          <attribute name="context_floor_price">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount}</attribute>
+          <attribute name="on_change">onchange_price_unit(context)</attribute>
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>

@@ -22,17 +22,30 @@
  'version' : '5.1',
  'author' : 'Camptocamp',
  'maintainer': 'Camptocamp',
- 'category': 'Tool',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['stock','product','sale', 'sale_line_watcher'],
- 'description': """Set a minimal price on product and raise a warning if sale price is too low""",
+ 'category': 'Sales Management',
+ 'complexity': "normal",
+ 'depends' : [
+     'stock','product','sale',
+     'sale_line_watcher'
+     ],
+ 'description': """
+Floor price on product
+======================
+
+Set a minimal price on product and raise a warning if sale price is too low.
+
+Contributors
+------------
+
+* Joël Grand-Guillaume <joel.grandguillaume@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
+""",
  'website': 'http://www.camptocamp.com',
- 'init_xml': [],
- 'update_xml': ['product_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
+ 'data': ['product_view.xml',
+          'sale_view.xml',
+          ],
+ 'test': [],
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
-
