@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Yannick Vaucher, Joel Grand-Guillaume
-#    Copyright 2012 Camptocamp SA
+#    Author: Yannick Vaucher
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,35 +18,4 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Markup rate on product and sales',
- 'version' : '5.1',
- 'author' : 'Camptocamp',
- 'maintainer': 'Camptocamp',
- 'category': 'version',
- 'complexity': "normal",
- 'depends' : [
-     'base',
-     'product_get_cost_field',
-     'mrp',
-     'sale',
-     'web_context_tunnel',
-     'sale_line_watcher',
-     ],
- 'description': """
-Markup rate on product and sales
-================================
-
-Display the product and sale markup in the appropriate views
-""",
- 'website': 'http://www.camptocamp.com/',
- 'data': [
-     'sale_view.xml',
-     'product_view.xml',
-     ],
- 'test': [],
- 'installable': True,
- 'auto_install': False,
- 'license': 'AGPL-3',
- 'application': True}
-
-
+from . import test_sale_markup
