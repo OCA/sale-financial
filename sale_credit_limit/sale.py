@@ -62,9 +62,6 @@ class sale_order(orm.Model):
                 order.partner_id.parent_id
                 and order.partner_id.parent_id.name
                 or order.partner_id.name)
-            print "total_so_company_currency=", total_so_company_currency
-            print "order.partner_id.credit=", partner_balance
-            print "order.partner_id.credit_limit=", partner_credit_limit
             # should we take into account the confirmed sale order that are
             # not invoiced yet ?
             if (
