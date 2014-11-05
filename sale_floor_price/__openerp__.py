@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Floor price on product',
- 'version' : '5.1',
- 'author' : 'Camptocamp',
+{'name': 'Floor price on product',
+ 'version': '5.1',
+ 'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'Sales Management',
  'complexity': "normal",
- 'depends' : [
-     'stock','product','sale',
+ 'depends': [
+     'stock', 'product', 'sale',
      'sale_line_watcher'
      ],
  'description': """

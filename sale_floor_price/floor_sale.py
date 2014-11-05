@@ -65,8 +65,9 @@ class SaleOrderLine(Model):
         value, otherwise we leave it empty...
         """
         override_unit_price = kwargs.pop('override_unit_price', True)
-        res = super(SaleOrderLine, self
-                    ).onchange_price_unit(cr, uid, ids, context=context, **kwargs)
+        res = super(SaleOrderLine, self).onchange_price_unit(
+            cr, uid, ids, context=context, **kwargs
+        )
         price_unit = context.get('price_unit')
         product_id = context.get('product_id')
         discount = context.get('discount')
