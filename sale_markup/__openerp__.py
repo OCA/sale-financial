@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Markup rate on product and sales',
- 'version' : '5.1',
- 'author' : 'Camptocamp',
+{'name': 'Markup rate on product and sales',
+ 'version': '5.1',
+ 'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'version',
  'complexity': "normal",
- 'depends' : [
+ 'depends': [
      'base',
      'product_get_cost_field',
      'mrp',
@@ -48,5 +48,3 @@ Display the product and sale markup in the appropriate views
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
-
-
