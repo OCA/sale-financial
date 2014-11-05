@@ -19,10 +19,10 @@
 #
 ##############################################################################
 import openerp.tests.common as common
-from openerp.addons import get_module_resource
 
 
-def _trigger_on_changes(self, cr, uid, sale_order, view_values, changed_values):
+def _trigger_on_changes(self, cr, uid, sale_order,
+                        view_values, changed_values):
     triggered_on_changes = []
     while [i for i in changed_values.keys() if i not in triggered_on_changes]:
         res_values = {}
@@ -50,21 +50,30 @@ def _trigger_on_changes(self, cr, uid, sale_order, view_values, changed_values):
                     context=view_values)
                 break
             elif field == 'price_unit':
-                res_values = self.SaleOrderLine.onchange_price_unit(cr, uid, False, context=view_values)
+                res_values = self.SaleOrderLine.onchange_price_unit(
+                    cr, uid, False, context=view_values
+                )
                 break
             elif field == 'discount':
-                res_values = self.SaleOrderLine.onchange_discount(cr, uid, False, context=view_values)
+                res_values = self.SaleOrderLine.onchange_discount(
+                    cr, uid, False, context=view_values
+                )
                 break
             elif field == 'commercial_margin':
-                res_values = self.SaleOrderLine.onchange_commercial_margin(cr, uid, False, context=view_values)
+                res_values = self.SaleOrderLine.onchange_commercial_margin(
+                    cr, uid, False, context=view_values
+                )
                 break
             elif field == 'markup_rate':
-                res_values = self.SaleOrderLine.onchange_markup_rate(cr, uid, False, context=view_values)
+                res_values = self.SaleOrderLine.onchange_markup_rate(
+                    cr, uid, False, context=view_values
+                )
                 break
         if res_values:
             changed_values.update(res_values['value'])
             view_values.update(res_values['value'])
     return view_values
+
 
 class test_sale_markup(common.TransactionCase):
     """ Test the wizard for delivery carrier label generation """
@@ -77,10 +86,12 @@ class test_sale_markup(common.TransactionCase):
         self.SaleOrderLine = self.registry('sale.order.line')
         self.Product = self.registry('product.product')
         self.product_33 = self.Product.browse(
-                cr, uid, self.ref('product.product_product_33'))
+            cr, uid, self.ref('product.product_product_33')
+        )
         self.ResPartner = self.registry('res.partner')
         self.partner_12 = self.ResPartner.browse(
-                cr, uid, self.ref('base.res_partner_12'))
+            cr, uid, self.ref('base.res_partner_12')
+        )
 
     def test_00_create_sale_order(self):
         """ Check markup computing in sale order
@@ -89,9 +100,10 @@ class test_sale_markup(common.TransactionCase):
         """
         cr, uid = self.cr, self.uid
 
-        so_data = {'partner_id': self.partner_12.id,
-                }
-        res = self.SaleOrder.onchange_partner_id(cr, uid, False, self.partner_12.id)
+        so_data = {'partner_id': self.partner_12.id}
+        res = self.SaleOrder.onchange_partner_id(
+            cr, uid, False, self.partner_12.id
+        )
         so_data.update(res['value'])
 
         so_1_id = self.SaleOrder.create(cr, uid, so_data)
@@ -131,62 +143,113 @@ class test_sale_markup(common.TransactionCase):
         ctx.update(res['value'])
         res = _trigger_on_changes(self, cr, uid, so_1, ctx, res['value'])
         # cost_price should be set and equal to product cost price.
-        assert abs(res.get('cost_price') - self.Product.get_cost_field(cr, uid, self.product_33.id)[self.product_33.id]) < 0.01
+        assert abs(res.get('cost_price') - self.Product.get_cost_field(
+            cr, uid, self.product_33.id)[self.product_33.id]) < 0.01
 
-        # commercial_margin should be updated and equal to price_unit * (1 - (discount / 100.0)) - cost_price
-        commercial_margin = (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0)) - ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, "Commercial margin is %s instead of %s after update of product_id" % (ctx.get('commercial_margin'), commercial_margin)
-        # markup_rate should be updated and equal to commercial_margin / (price_unit * (1 - (discount / 100.0)))
-        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, "Markup rate is %s instead of %s after update of product_id" % (ctx.get('markup_rate'), markup_rate)
+        # commercial_margin should be updated and equal to
+        # price_unit * (1 - (discount / 100.0)) - cost_price
+        commercial_margin = (ctx.get('price_unit') *
+                             (1 - (ctx.get('discount') / 100.0)) -
+                             ctx.get('cost_price'))
+        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
+            "Commercial margin is %s instead of %s " \
+            "after update of product_id" % (ctx.get('commercial_margin'),
+                                            commercial_margin)
+        # markup_rate should be updated and equal to
+        # commercial_margin / (price_unit * (1 - (discount / 100.0)))
+        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
+                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
+            "Markup rate is %s instead of %s " \
+            "after update of product_id" % (ctx.get('markup_rate'),
+                                            markup_rate)
 
         # I add 1 percent to discount and trigger the on_change on discount.
         ctx['discount'] = 1.0
-        res = self.SaleOrderLine.onchange_discount(cr, uid, False, context=ctx)
+        res = self.SaleOrderLine.onchange_discount(
+            cr, uid, False, context=ctx
+        )
         ctx.update(res['value'])
         ctx = _trigger_on_changes(self, cr, uid, so_1, ctx, res['value'])
 
-        # commercial_margin should be updated and equal to price_unit * (1 - (discount / 100.0)) - cost_price
-        commercial_margin = (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0)) - ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, "Commercial margin is %s instead of %s after update of discount" % (ctx.get('commercial_margin'), commercial_margin)
+        # commercial_margin should be updated and equal to
+        # price_unit * (1 - (discount / 100.0)) - cost_price
+        commercial_margin = (ctx.get('price_unit') *
+                             (1 - (ctx.get('discount') / 100.0)) -
+                             ctx.get('cost_price'))
+        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
+            "Commercial margin is %s instead of %s " \
+            "after update of discount" % (ctx.get('commercial_margin'),
+                                          commercial_margin)
 
-        # markup_rate should be updated and equal to commercial_margin / (price_unit * (1 - (discount / 100.0)))
-        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, "Markup rate is %s instead of %s after update of discount" % (ctx.get('markup_rate'), markup_rate)
+        # markup_rate should be updated and equal to
+        # commercial_margin / (price_unit * (1 - (discount / 100.0)))
+        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
+                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
+            "Markup rate is %s instead of %s " \
+            "after update of discount" % (ctx.get('markup_rate'), markup_rate)
 
-        # I change the markup rate to 20.0 and trigger the on_change on markup_rate.
+        # I change the markup rate to 20.0 and
+        # trigger the on_change on markup_rate.
         ctx['markup_rate'] = 20.0
-        res = self.SaleOrderLine.onchange_markup_rate(cr, uid, False, context=ctx)
+        res = self.SaleOrderLine.onchange_markup_rate(
+            cr, uid, False, context=ctx
+        )
         ctx.update(res['value'])
         ctx = _trigger_on_changes(self, cr, uid, so_1, ctx, res['value'])
 
-        # commercial_margin should be updated and equal to price_unit * (1 - (discount / 100.0)) - cost_price
-        commercial_margin = (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0)) - ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, "Commercial margin is %s instead of %s after update of markup_rate" % (ctx.get('commercial_margin'), commercial_margin)
+        # commercial_margin should be updated and equal to
+        # price_unit * (1 - (discount / 100.0)) - cost_price
+        commercial_margin = (ctx.get('price_unit') *
+                             (1 - (ctx.get('discount') / 100.0)) -
+                             ctx.get('cost_price'))
+        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
+            "Commercial margin is %s instead of %s " \
+            "after update of markup_rate" % (ctx.get('commercial_margin'),
+                                             commercial_margin)
 
-        # markup_rate should be updated and equal to commercial_margin / (price_unit * (1 - (discount / 100.0)))
-        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, "Markup rate is %s instead of %s after update of markup_rate" % (ctx.get('markup_rate'), markup_rate)
+        # markup_rate should be updated and equal to
+        # commercial_margin / (price_unit * (1 - (discount / 100.0)))
+        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
+                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
+            "Markup rate is %s instead of %s " \
+            "after update of markup_rate" % (ctx.get('markup_rate'),
+                                             markup_rate)
 
-
-        # I change the price unit to 2000.0 and trigger the on_change on price_unit.
+        # I change the price unit to 2000.0 and
+        # trigger the on_change on price_unit.
         ctx['price_unit'] = 2000.0
-        res = self.SaleOrderLine.onchange_price_unit(cr, uid, False, context=ctx)
+        res = self.SaleOrderLine.onchange_price_unit(
+            cr, uid, False, context=ctx
+        )
         ctx.update(res['value'])
         ctx = _trigger_on_changes(self, cr, uid, so_1, ctx, res['value'])
 
-        # commercial_margin should be updated and equal to price_unit * (1 - (discount / 100.0)) - cost_price
-        commercial_margin = (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0)) - ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, "Commercial margin is %s instead of %s after update of price_unit" % (ctx.get('commercial_margin'), commercial_margin)
+        # commercial_margin should be updated and equal to
+        # price_unit * (1 - (discount / 100.0)) - cost_price
+        commercial_margin = (ctx.get('price_unit') *
+                             (1 - (ctx.get('discount') / 100.0)) -
+                             ctx.get('cost_price'))
+        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
+            "Commercial margin is %s instead of %s " \
+            "after update of price_unit" % (ctx.get('commercial_margin'),
+                                            commercial_margin)
 
-        # markup_rate should be updated and equal to commercial_margin / (price_unit * (1 - (discount / 100.0)))
-        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') * (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, "Markup rate is %s instead of %s after update of price_unit" % (ctx.get('markup_rate'), markup_rate)
+        # markup_rate should be updated and equal to
+        # commercial_margin / (price_unit * (1 - (discount / 100.0)))
+        markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
+                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
+            "Markup rate is %s instead of %s " \
+            "after update of price_unit" % (ctx.get('markup_rate'),
+                                            markup_rate)
 
         sol_data = ctx
 
         # I create the sale order line for the sale order.
-        sol_1_id = self.SaleOrderLine.create(
+        self.SaleOrderLine.create(
             cr, uid,
             sol_data
             )

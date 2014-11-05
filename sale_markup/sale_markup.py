@@ -42,8 +42,9 @@ class SaleOrder(Model):
             cost_sum = 0.0
             sale_sum = 0.0
             for line in sale_order.order_line:
-                cost_sum += line.cost_price
-                sale_sum += line.price_unit * (100 - line.discount) / 100.0
+                cost_sum += line.product_uom_qty * line.cost_price
+                sale_sum += line.product_uom_qty * \
+                    (line.price_unit * (100 - line.discount) / 100.0)
             markup_rate = ((sale_sum - cost_sum) / sale_sum * 100 if sale_sum
                            else 0.0)
             res[sale_order.id]['markup_rate'] = markup_rate
@@ -273,7 +274,8 @@ class SaleOrderLine(Model):
 
             if not 'value' in res:
                 res['value'] = {}
-            if 'price_unit' in res['value']:
+            if 'price_unit' in res['value'] and \
+                    not context.get('force_price_unit', False):
                 price_unit = res['value']['price_unit']
             sale_price = price_unit * (100 - discount) / 100.0
 
@@ -328,8 +330,36 @@ class SaleOrderLine(Model):
 
         markup = context.get('markup_rate')
         price_unit = context.get('price_unit')
+        margin = context.get('commercial_margin')
         markup = markup / 100.0
-        if price_unit and not markup == 1:
+        if not price_unit:
+            margin = context.get('commercial_margin')
+            # if purchase price is 0
+            # we force 0 / 0 = 0
+            if margin == 0:
+                res['value'].update({
+                    'markup_rate': 0.0,
+                    'break_onchange_markup_rate': True,
+                })
+            else:
+                # else 0 - purchase_price / 0 = -9999.0
+                # as if not 0 sale_price should be always positive,
+                # it should be negative infinite thus
+                # we give an understandable value
+                res['value'].update({
+                    'markup_rate': -9999.0,
+                    'break_onchange_markup_rate': True,
+                })
+        elif markup == 1:
+            # markup at 100% means purchase price is 0
+            # this is not a value the user can set because
+            # he isn't allowed to set product at 0
+            restore_markup = margin * 100.0 / price_unit
+            res['value'].update({
+                'markup_rate': restore_markup,
+                'break_onchange_markup_rate': True,
+            })
+        else:
             cost_price = context.get('cost_price')
             margin = context.get('commercial_margin')
             discount = context.get('discount')
@@ -399,4 +429,9 @@ class SaleOrderLine(Model):
                     'markup_rate': new_markup,
                     'break_onchange_markup_rate': True,
                 })
+        else:
+            res['value'].update({
+                'commercial_margin': 0.0,
+                'break_onchange_markup_rate': True,
+            })
         return res
