@@ -133,8 +133,9 @@ class SaleOrderLine(Model):
         """
         if context is None:
             context = {}
-        res = super(SaleOrderLine, self
-                    ).onchange_price_unit(cr, uid, ids, context=context)
+        res = super(SaleOrderLine, self).onchange_price_unit(
+            cr, uid, ids, context=context, **kwargs
+        )
         product_id = context.get('product_id')
         if product_id:
             price_unit = context.get('price_unit')
@@ -193,8 +194,9 @@ class SaleOrderLine(Model):
         """
         if context is None:
             context = {}
-        res = super(SaleOrderLine, self
-                    ).onchange_discount(cr, uid, ids, context=context)
+        res = super(SaleOrderLine, self).onchange_discount(
+            cr, uid, ids, context=context, **kwargs
+        )
         product_id = context.get('product_id')
         if context.get('break_onchange'):
             res['value']['break_onchange_discount'] = False
