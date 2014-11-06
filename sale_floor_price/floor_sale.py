@@ -75,7 +75,7 @@ class SaleOrderLine(Model):
                                 override_unit_price)
         return res
 
-    def onchange_discount(self, cr, uid, ids, context=None):
+    def onchange_discount(self, cr, uid, ids, context=None, **kwargs):
         """
         If discount change, check that final price is not < floor_price_limit
         of related product
@@ -84,8 +84,9 @@ class SaleOrderLine(Model):
         """
         if context is None:
             context = {}
-        res = super(SaleOrderLine, self
-                    ).onchange_discount(cr, uid, ids, context=context)
+        res = super(SaleOrderLine, self).onchange_discount(
+            cr, uid, ids, context=context, **kwargs
+        )
         price_unit = context.get('price_unit')
         product_id = context.get('product_id')
         discount = context.get('discount')
