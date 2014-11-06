@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Author Nicolas Bessi
+#    Author: Yannick Vaucher, Joel Grand-Guillaume
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,24 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Sale order line watcher',
- 'version' : '0.1',
- 'author' : 'Camptocamp',
+{'name': 'Markup rate on product and sales',
+ 'version': '5.1',
+ 'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
- 'category': 'Hidden',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['base', 'sale'],
- 'description': """Add new base onchange methods on sale_order class
+ 'category': 'version',
+ 'complexity': "normal",
+ 'depends': [
+     'base',
+     'product_get_cost_field',
+     'mrp',
+     'sale',
+     'web_context_tunnel',
+     'sale_line_watcher',
+     ],
+ 'description': """
+Markup rate on product and sales
+================================
 
- onchange_price_unit and onchange_discount both accept the following arguments:
- (self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs)
+Display the product and sale markup in the appropriate views
 """,
- 'website': 'http://www.camptocamp.com',
- 'init_xml': [],
- 'update_xml': ['sale_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
+ 'website': 'http://www.camptocamp.com/',
+ 'data': [
+     'sale_view.xml',
+     'product_view.xml',
+     ],
+ 'test': [],
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}

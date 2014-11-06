@@ -1,0 +1,76 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* sale_markup
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-04-03 14:11+0000\n"
+"PO-Revision-Date: 2014-04-03 16:32+0100\n"
+"Last-Translator: Yannick Vaucher <yannick.vaucher@camptocamp.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: sale_markup
+#: field:product.product,cost_price:0
+msgid "Cost Price"
+msgstr "Coût de revient"
+
+#. module: sale_markup
+#: field:sale.order.line,cost_price:0
+msgid "Historical Cost Price"
+msgstr "Coût de revient historique"
+
+#. module: sale_markup
+#: field:product.product,commercial_margin:0
+#: field:sale.order.line,commercial_margin:0
+msgid "Margin"
+msgstr "Marge"
+
+#. module: sale_markup
+#: help:product.product,commercial_margin:0
+msgid "Margin is [ sale_price - cost_price ] (not based on historical values)"
+msgstr "La marge est calculée ainsi [ prix_vente - prix_achat ] (n'est pas basé sur l'historique des valeurs)"
+
+#. module: sale_markup
+#: help:sale.order.line,commercial_margin:0
+msgid "Margin is [ sale_price - cost_price ], changing it will update the discount"
+msgstr "La marge est calculée ainsi [ prix_vente - prix_achat ], changer la marge adapte la remise."
+
+#. module: sale_markup
+#: help:sale.order.line,markup_rate:0
+msgid "Markup is [ margin / sale_price ], changing it will update the discount"
+msgstr "Le taux de marque est calculé ainsi [ marge / prix_vente ], changer le taux de marque adapte la remise."
+
+#. module: sale_markup
+#: view:sale.order:0
+#: field:sale.order,markup_rate:0
+#: field:sale.order.line,markup_rate:0
+#: field:product.product,markup_rate:0
+msgid "Markup"
+msgstr "Taux de marque"
+
+#. module: sale_markup
+#: help:product.product,markup_rate:0
+msgid "Markup is [ margin / sale_price ] (not based on historical values)"
+msgstr "Le taux de marque est [ marge / prix_vente ] (n'est pas basé sur l'historique des valeurs)"
+
+#. module: sale_markup
+#: help:product.product,cost_price:0
+msgid "The cost price is the standard price unless you install the product_cost_incl_bom module."
+msgstr "Le coût de revient est le prix standard à moins que le module product_cost_incl_bom ne soit installé."
+
+#. module: sale_markup
+#: help:sale.order.line,cost_price:0
+msgid "The cost price of the product at the time of the creation of the sale order"
+msgstr "Le coût de revient du produit au moment de la création de la commande client."
+
+#. module: sale_markup
+#: view:sale.order:0
+msgid "product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id,False,True,parent.date_order,product_packaging,parent.fiscal_position,False,price_unit,discount,context)"
+msgstr "product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id,False,True,parent.date_order,product_packaging,parent.fiscal_position,False,price_unit,discount,context)"
+
