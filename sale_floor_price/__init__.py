@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Author Nicolas Bessi
+#    Author: Joël Grand-Guillaume
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,26 +19,7 @@
 #
 ##############################################################################
 
-from osv.orm import Model
+from . import product
+from . import floor_sale
 
-class SaleOrderLine(Model):
-    _inherit = 'sale.order.line'
-
-    def onchange_price_unit(self, cr, uid, ids,
-                            price_unit, product_id, discount, product_uom, pricelist,
-                            **kwargs):
-        '''
-        Place holder function for onchange unit price
-        '''
-        res = {}
-        return res
-
-    def onchange_discount(self, cr, uid, ids,
-                          price_unit, product_id, discount, product_uom, pricelist,
-                          **kwargs):
-        '''
-        Place holder function for onchange discount
-        '''
-        res = {}
-        return res
-
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

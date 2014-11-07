@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Joël Grand-Guillaume
+#    Author:  Author Nicolas Bessi
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,21 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Floor price on product',
- 'version' : '5.1',
- 'author' : 'Camptocamp',
- 'maintainer': 'Camptocamp',
- 'category': 'Tool',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['stock','product','sale', 'sale_line_watcher'],
- 'description': """Set a minimal price on product and raise a warning if sale price is too low""",
- 'website': 'http://www.camptocamp.com',
- 'init_xml': [],
- 'update_xml': ['product_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
- 'auto_install': False,
- 'license': 'AGPL-3',
- 'application': True}
 
+from openerp.osv.orm import Model
+
+
+class SaleOrderLine(Model):
+    _inherit = 'sale.order.line'
+
+    def onchange_price_unit(self, cr, uid, ids, context=None, **kwargs):
+        """
+        Place holder function for onchange unit price
+        """
+        return {}
+
+    def onchange_discount(self, cr, uid, ids, context=None, **kwargs):
+        """
+        Place holder function for onchange discount
+        """
+        return {}

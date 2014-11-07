@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Author Nicolas Bessi
+#    Author: Joël Grand-Guillaume
 #    Copyright 2012 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,24 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name' : 'Sale order line watcher',
- 'version' : '0.1',
- 'author' : 'Camptocamp',
+{'name': 'Floor price on product',
+ 'version': '5.1',
+ 'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
- 'category': 'Hidden',
- 'complexity': "normal",  # easy, normal, expert
- 'depends' : ['base', 'sale'],
- 'description': """Add new base onchange methods on sale_order class
+ 'category': 'Sales Management',
+ 'complexity': "normal",
+ 'depends': [
+     'stock', 'product', 'sale',
+     'sale_line_watcher'
+     ],
+ 'description': """
+Floor price on product
+======================
 
- onchange_price_unit and onchange_discount both accept the following arguments:
- (self, cr, uid, ids, price_unit, product_id, discount, product_uom, pricelist, **kwargs)
+Set a minimal price on product and raise a warning if sale price is too low.
+
+Contributors
+------------
+
+* Joël Grand-Guillaume <joel.grandguillaume@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
 """,
  'website': 'http://www.camptocamp.com',
- 'init_xml': [],
- 'update_xml': ['sale_view.xml'],
- 'demo_xml': [],
- 'tests': [],
- 'installable': False,
+ 'data': ['product_view.xml',
+          'sale_view.xml',
+          ],
+ 'test': [],
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': True}
