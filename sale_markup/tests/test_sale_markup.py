@@ -20,6 +20,8 @@
 ##############################################################################
 import openerp.tests.common as common
 
+DELTA = 0.01
+
 
 def _trigger_on_changes(self, cr, uid, sale_order,
                         view_values, changed_values):
@@ -143,26 +145,30 @@ class test_sale_markup(common.TransactionCase):
         ctx.update(res['value'])
         res = _trigger_on_changes(self, cr, uid, so_1, ctx, res['value'])
         # cost_price should be set and equal to product cost price.
-        assert abs(res.get('cost_price') - self.Product.get_cost_field(
-            cr, uid, self.product_33.id)[self.product_33.id]) < 0.01
+        cost_field = self.Product.get_cost_field(
+            cr, uid, self.product_33.id
+        )[self.product_33.id]
+
+        self.assertAlmostEqual(
+            res.get('cost_price'),
+            cost_field,
+            delta=DELTA)
 
         # commercial_margin should be updated and equal to
         # price_unit * (1 - (discount / 100.0)) - cost_price
         commercial_margin = (ctx.get('price_unit') *
                              (1 - (ctx.get('discount') / 100.0)) -
                              ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
-            "Commercial margin is %s instead of %s " \
-            "after update of product_id" % (ctx.get('commercial_margin'),
-                                            commercial_margin)
+        self.assertAlmostEqual(ctx.get('commercial_margin'),
+                               commercial_margin,
+                               delta=DELTA)
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
                        (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
-            "Markup rate is %s instead of %s " \
-            "after update of product_id" % (ctx.get('markup_rate'),
-                                            markup_rate)
+        self.assertAlmostEqual(ctx.get('markup_rate'),
+                               markup_rate,
+                               delta=DELTA)
 
         # I add 1 percent to discount and trigger the on_change on discount.
         ctx['discount'] = 1.0
@@ -177,18 +183,17 @@ class test_sale_markup(common.TransactionCase):
         commercial_margin = (ctx.get('price_unit') *
                              (1 - (ctx.get('discount') / 100.0)) -
                              ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
-            "Commercial margin is %s instead of %s " \
-            "after update of discount" % (ctx.get('commercial_margin'),
-                                          commercial_margin)
+        self.assertAlmostEqual(ctx.get('commercial_margin'),
+                               commercial_margin,
+                               delta=DELTA)
 
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
                        (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
-            "Markup rate is %s instead of %s " \
-            "after update of discount" % (ctx.get('markup_rate'), markup_rate)
+        self.assertAlmostEqual(ctx.get('markup_rate'),
+                               markup_rate,
+                               delta=DELTA)
 
         # I change the markup rate to 20.0 and
         # trigger the on_change on markup_rate.
@@ -204,19 +209,17 @@ class test_sale_markup(common.TransactionCase):
         commercial_margin = (ctx.get('price_unit') *
                              (1 - (ctx.get('discount') / 100.0)) -
                              ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
-            "Commercial margin is %s instead of %s " \
-            "after update of markup_rate" % (ctx.get('commercial_margin'),
-                                             commercial_margin)
+        self.assertAlmostEqual(ctx.get('commercial_margin'),
+                               commercial_margin,
+                               delta=DELTA)
 
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
                        (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
-            "Markup rate is %s instead of %s " \
-            "after update of markup_rate" % (ctx.get('markup_rate'),
-                                             markup_rate)
+        self.assertAlmostEqual(ctx.get('markup_rate'),
+                               markup_rate,
+                               delta=DELTA)
 
         # I change the price unit to 2000.0 and
         # trigger the on_change on price_unit.
@@ -232,19 +235,17 @@ class test_sale_markup(common.TransactionCase):
         commercial_margin = (ctx.get('price_unit') *
                              (1 - (ctx.get('discount') / 100.0)) -
                              ctx.get('cost_price'))
-        assert abs(ctx.get('commercial_margin') - commercial_margin) < 0.01, \
-            "Commercial margin is %s instead of %s " \
-            "after update of price_unit" % (ctx.get('commercial_margin'),
-                                            commercial_margin)
+        self.assertAlmostEqual(ctx.get('commercial_margin'),
+                               commercial_margin,
+                               delta=DELTA)
 
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
                        (1 - (ctx.get('discount') / 100.0))) * 100.0)
-        assert abs(ctx.get('markup_rate') - markup_rate) < 0.01, \
-            "Markup rate is %s instead of %s " \
-            "after update of price_unit" % (ctx.get('markup_rate'),
-                                            markup_rate)
+        self.assertAlmostEqual(ctx.get('markup_rate'),
+                               markup_rate,
+                               delta=DELTA)
 
         sol_data = ctx
 
@@ -255,6 +256,7 @@ class test_sale_markup(common.TransactionCase):
             )
 
         so_1.refresh()
-        assert so_1.markup_rate
         # as we have only one line it should be equal to our last line markup
-        assert abs(so_1.markup_rate - markup_rate) < 0.01
+        self.assertAlmostEqual(so_1.markup_rate,
+                               markup_rate,
+                               delta=DELTA)
