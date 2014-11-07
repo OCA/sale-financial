@@ -77,11 +77,11 @@ def _trigger_on_changes(self, cr, uid, sale_order,
     return view_values
 
 
-class test_sale_markup(common.TransactionCase):
+class TestSaleMarkup(common.TransactionCase):
     """ Test the wizard for delivery carrier label generation """
 
     def setUp(self):
-        super(test_sale_markup, self).setUp()
+        super(TestSaleMarkup, self).setUp()
         cr, uid = self.cr, self.uid
 
         self.SaleOrder = self.registry('sale.order')
@@ -95,7 +95,7 @@ class test_sale_markup(common.TransactionCase):
             cr, uid, self.ref('base.res_partner_12')
         )
 
-    def test_00_create_sale_order(self):
+    def test_00_create_sale_order_and_check_markup(self):
         """ Check markup computing in sale order
 
         And check each on_changes
