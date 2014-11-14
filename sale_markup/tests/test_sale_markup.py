@@ -165,7 +165,7 @@ class TestSaleMarkup(common.TransactionCase):
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
-                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+                                                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
         self.assertAlmostEqual(ctx.get('markup_rate'),
                                markup_rate,
                                delta=DELTA)
@@ -190,7 +190,7 @@ class TestSaleMarkup(common.TransactionCase):
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
-                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+                                                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
         self.assertAlmostEqual(ctx.get('markup_rate'),
                                markup_rate,
                                delta=DELTA)
@@ -216,7 +216,7 @@ class TestSaleMarkup(common.TransactionCase):
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
-                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+                                                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
         self.assertAlmostEqual(ctx.get('markup_rate'),
                                markup_rate,
                                delta=DELTA)
@@ -242,7 +242,7 @@ class TestSaleMarkup(common.TransactionCase):
         # markup_rate should be updated and equal to
         # commercial_margin / (price_unit * (1 - (discount / 100.0)))
         markup_rate = (ctx.get('commercial_margin') / (ctx.get('price_unit') *
-                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
+                                                       (1 - (ctx.get('discount') / 100.0))) * 100.0)
         self.assertAlmostEqual(ctx.get('markup_rate'),
                                markup_rate,
                                delta=DELTA)
@@ -253,7 +253,7 @@ class TestSaleMarkup(common.TransactionCase):
         self.SaleOrderLine.create(
             cr, uid,
             sol_data
-            )
+        )
 
         so_1.refresh()
         # as we have only one line it should be equal to our last line markup
