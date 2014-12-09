@@ -30,10 +30,15 @@
     in status draft or sent.
 
     When approving a Sale Order it computes the sum of:
-        * The Accounts Receivable Journal Items pending to be pai
-        * The total amount for Sale Orders approved, but not yet invoiced
-        * The total amount for Invoices that are in draft state
-        * The total amount for Sale Orders pending to be approved
+        * - The Accounts Receivable Journal Items pending to be paid
+        * + The Accounts Payable Journal Items pending to be paid
+        * - The total amount for Sale Orders lines approved,
+        but not yet invoiced
+        * - The total amount for Customer Invoices or Supplier Refunds
+        that are in draft state
+        * + The total amount for Supplier Invoices or Customer Refunds
+        that are in draft state
+
     and compares it with the credit limit of the partner. If the
     credit limit is less it does not allow to approve the Sale
     Order.
