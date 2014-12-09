@@ -64,7 +64,7 @@ class res_partner(orm.Model):
                        ('type', 'in', ('in_invoice', 'out_refund'))]
             draft_invoices_ids = invoice_obj.search(
                 cr, uid, filters, context=context)
-            draft_invoices_credit = 0.0
+            draft_invoices_debit = 0.0
             for invoice in invoice_obj.browse(
                     cr, uid, draft_invoices_ids, context=context):
                 if invoice.currency_id.id != \
@@ -73,9 +73,9 @@ class res_partner(orm.Model):
                         cr, uid, order.currency_id.id,
                         order.company_id.currency_id.id,
                         invoice.amount_total, context=context)
-                    draft_invoices_credit += inv_total_cc
+                    draft_invoices_debit += inv_total_cc
                 else:
-                    draft_invoices_credit += invoice.amount_total
+                    draft_invoices_debit += invoice.amount_total
 
             # We sum from all the refund customer invoices
             # that are in draft the total amount
@@ -84,7 +84,7 @@ class res_partner(orm.Model):
                        ('type', 'in', ('in_refund', 'out_invoice'))]
             draft_invoices_ids = invoice_obj.search(
                 cr, uid, filters, context=context)
-            draft_invoices_debit = 0.0
+            draft_invoices_credit = 0.0
             for invoice in invoice_obj.browse(
                     cr, uid, draft_invoices_ids, context=context):
                 if invoice.currency_id.id != invoice.company_id.currency_id.id:
@@ -92,16 +92,16 @@ class res_partner(orm.Model):
                         cr, uid, order.currency_id.id,
                         order.company_id.currency_id.id,
                         invoice.amount_total, context=context)
-                    draft_invoices_debit += inv_total_cc
+                    draft_invoices_credit += inv_total_cc
                 else:
-                    draft_invoices_debit += invoice.amount_total
+                    draft_invoices_credit += invoice.amount_total
 
-            credit_exposure = debit \
-                - credit \
-                - approved_orders_amount \
-                - draft_invoices_debit \
-                + draft_invoices_credit
-            res[partner.id] = credit_exposure
+            total_exposure = credit \
+                - debit \
+                + approved_orders_amount \
+                + draft_invoices_credit \
+                - draft_invoices_debit
+            res[partner.id] = total_exposure
         return res
     _columns = {
         'total_exposure': fields.function(

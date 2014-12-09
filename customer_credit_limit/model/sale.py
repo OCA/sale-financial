@@ -31,13 +31,12 @@ class sale_order(osv.osv):
 
         model_data_obj = self.pool.get('ir.model.data')
         res_groups_obj = self.pool.get('res.groups')
+        currency_obj = self.pool.get('res.currency')
 
-
-        for order_id in ids:
-            processed_order = self.browse(cr, uid, order_id, context=context)
-            if processed_order.order_policy == 'prepaid':
+        for order in self.browse(cr, uid, ids, context=context):
+            if order.order_policy == 'prepaid':
                 continue
-            partner = processed_order.partner_id
+            partner = order.partner_id
             group_releaser_id = model_data_obj._get_id(
                 cr, uid, 'customer_credit_limit',
                 'group_so_credit_block_releaser')
@@ -48,10 +47,21 @@ class sale_order(osv.osv):
                     cr, uid, res_id, context=context)
                 group_user_ids = [user.id for user
                                   in group_releaser.users]
+
+                if order.currency_id.id != \
+                        order.company_id.currency_id.id:
+                    so_total_cc = currency_obj.compute(
+                        cr, uid, order.currency_id.id,
+                        order.company_id.currency_id.id,
+                        order.amount_total, context=context)
+                    total_order_amount = so_total_cc
+                else:
+                    total_order_amount = \
+                        order.amount_total
                 available_credit = partner.credit_limit \
-                                   - partner.total_exposure
-                if processed_order.amount_total > available_credit \
-                        and uid not in group_user_ids:
+                    - partner.total_exposure - total_order_amount
+
+                if available_credit < 0 and uid not in group_user_ids:
                     raise osv.except_osv(
                         _('Credit exceeded'),
                         _('Cannot confirm the order. The credit '
@@ -60,6 +70,6 @@ class sale_order(osv.osv):
                           'by changing the Invoice Policy to '
                           '"Before Delivery."')
                         % (abs(available_credit),
-                           processed_order.company_id.currency_id.name))
+                           order.company_id.currency_id.name))
 
         return True
