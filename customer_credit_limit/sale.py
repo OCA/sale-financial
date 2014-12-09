@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
+#    Copyright (C) 2014 Sistemas Adhoc
 #    Copyright (C) 2014 Eficent (<http://www.eficent.com/>)
 #              <contact@eficent.com>
 #
