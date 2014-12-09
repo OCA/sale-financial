@@ -31,6 +31,7 @@ class sale_order(osv.osv):
 
         model_data_obj = self.pool.get('ir.model.data')
         res_groups_obj = self.pool.get('res.groups')
+        currency_obj = self.pool.get('res.currency')
 
         for order_id in ids:
             processed_order = self.browse(cr, uid, order_id, context=context)
@@ -38,37 +39,75 @@ class sale_order(osv.osv):
                 continue
             partner = processed_order.partner_id
             credit = partner.credit
-
             # We sum from all the sale orders that are approved,
             # the sale order lines that are not yet invoiced
             order_obj = self.pool.get('sale.order')
             filters = [('partner_id', '=', partner.id),
                        ('state', '<>', 'draft'),
                        ('state', '<>', 'cancel')]
-            approved_invoices_ids = order_obj.search(
+            approved_order_ids = order_obj.search(
                 cr, uid, filters, context=context)
-            approved_invoices_amount = 0.0
+            approved_orders_amount = 0.0
             for order in order_obj.browse(
-                    cr, uid, approved_invoices_ids, context=context):
+                    cr, uid, approved_order_ids, context=context):
                 for order_line in order.order_line:
                     if not order_line.invoiced:
-                        approved_invoices_amount += order_line.price_subtotal
+                        if order.currency_id.id != \
+                                order.company_id.currency_id.id:
+                            so_line_total_cc = currency_obj.compute(
+                                cr, uid, order.currency_id.id,
+                                order.company_id.currency_id.id,
+                                order_line.price_subtotal, context=context)
+                            approved_orders_amount += so_line_total_cc
+                        else:
+                            approved_orders_amount += \
+                                order_line.price_subtotal
 
-            # We sum from all the invoices that are in draft the total amount
+            # We sum from all the invoices
+            # that are in draft the total amount
             invoice_obj = self.pool.get('account.invoice')
             filters = [('partner_id', '=', partner.id),
-                       ('state', '=', 'draft')]
+                       ('state', '=', 'draft'),
+                       ('type', 'in', ('in_invoice', 'out_refund'))]
             draft_invoices_ids = invoice_obj.search(
                 cr, uid, filters, context=context)
-            draft_invoices_amount = 0.0
+            draft_invoices_credit = 0.0
             for invoice in invoice_obj.browse(
                     cr, uid, draft_invoices_ids, context=context):
-                draft_invoices_amount += invoice.amount_total
+                if invoice.currency_id.id != \
+                        invoice.company_id.currency_id.id:
+                    inv_total_cc = currency_obj.compute(
+                        cr, uid, order.currency_id.id,
+                        order.company_id.currency_id.id,
+                        invoice.amount_total, context=context)
+                    draft_invoices_credit += inv_total_cc
+                else:
+                    draft_invoices_credit += invoice.amount_total
+
+            # We sum from all the refund customer invoices
+            # that are in draft the total amount
+            filters = [('partner_id', '=', partner.id),
+                       ('state', '=', 'draft'),
+                       ('type', 'in', ('in_refund', 'out_invoice'))]
+            draft_invoices_ids = invoice_obj.search(
+                cr, uid, filters, context=context)
+            draft_invoices_debit = 0.0
+            for invoice in invoice_obj.browse(
+                    cr, uid, draft_invoices_ids, context=context):
+                if invoice.currency_id.id != invoice.company_id.currency_id.id:
+                    inv_total_cc = currency_obj.compute(
+                        cr, uid, order.currency_id.id,
+                        order.company_id.currency_id.id,
+                        invoice.amount_total, context=context)
+                    draft_invoices_debit += inv_total_cc
+                else:
+                    draft_invoices_debit += invoice.amount_total
 
             available_credit = partner.credit_limit \
                 - credit \
-                - approved_invoices_amount \
-                - draft_invoices_amount
+                - approved_orders_amount \
+                - draft_invoices_debit \
+                + draft_invoices_credit
 
             group_releaser_id = model_data_obj._get_id(
                 cr, uid, 'customer_credit_limit',
