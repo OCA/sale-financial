@@ -55,8 +55,9 @@
     'update_xml': [
         'security/check_credit_limit_security.xml',
         'security/ir.model.access.csv',
-        'sale_workflow.xml',
-        'sale_view.xml',
+        'view/sale_workflow.xml',
+        'view/sale_view.xml',
+        'view/partner_view.xml',
     ],
     'demo_xml': [],
     'test': [],

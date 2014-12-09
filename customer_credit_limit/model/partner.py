@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (C) 2014 Sistemas Adhoc
 #    Copyright (C) 2014 Eficent (<http://www.eficent.com/>)
 #              <contact@eficent.com>
 #
@@ -20,25 +19,19 @@
 #
 ##############################################################################
 
-from openerp.osv import fields, osv
+from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
 
-class sale_order(osv.osv):
-    _inherit = "sale.order"
+class res_partner(orm.Model):
+    _inherit = "res.partner"
 
-    def check_limit(self, cr, uid, ids, context=None):
-
-        model_data_obj = self.pool.get('ir.model.data')
-        res_groups_obj = self.pool.get('res.groups')
+    def _total_exposure(self, cr, uid, ids, field_names, arg, context=None):
         currency_obj = self.pool.get('res.currency')
-
-        for order_id in ids:
-            processed_order = self.browse(cr, uid, order_id, context=context)
-            if processed_order.order_policy == 'prepaid':
-                continue
-            partner = processed_order.partner_id
+        res = {}
+        for partner in self.browse(cr, uid, ids, context=context):
             credit = partner.credit
+            debit = partner.debit
             # We sum from all the sale orders that are approved,
             # the sale order lines that are not yet invoiced
             order_obj = self.pool.get('sale.order')
@@ -103,31 +96,20 @@ class sale_order(osv.osv):
                 else:
                     draft_invoices_debit += invoice.amount_total
 
-            available_credit = partner.credit_limit \
+            credit_exposure = debit \
                 - credit \
                 - approved_orders_amount \
                 - draft_invoices_debit \
                 + draft_invoices_credit
+            res[partner.id] = credit_exposure
+        return res
+    _columns = {
+        'total_exposure': fields.function(
+            _total_exposure, string='Credit Exposure',
+            help="Open transactions with the partner relevant for "
+                 "credit limit, on a specified date."
+                 "A positive value means that the company owes to the "
+                 "partner."),
 
-            group_releaser_id = model_data_obj._get_id(
-                cr, uid, 'customer_credit_limit',
-                'group_so_credit_block_releaser')
-            if group_releaser_id:
-                res_id = model_data_obj.read(cr, uid, [group_releaser_id],
-                                             ['res_id'])[0]['res_id']
-                group_releaser = res_groups_obj.browse(
-                    cr, uid, res_id, context=context)
-                group_user_ids = [user.id for user
-                                  in group_releaser.users]
+    }
 
-                if processed_order.amount_total > available_credit \
-                        and uid not in group_user_ids:
-                    raise osv.except_osv(
-                        _('Credit exceeded'),
-                        _('Cannot confirm the order since the '
-                          'credit balance is %s You can still '
-                          'process the Sales Order by changing '
-                          'the Invoice Policy to "Before Delivery."')
-                        % (available_credit,))
-
-        return True
