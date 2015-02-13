@@ -24,6 +24,7 @@ import decimal_precision as dp
 
 
 class Product(orm.Model):
+
     """Add floor price to product"""
 
     _inherit = 'product.product'
