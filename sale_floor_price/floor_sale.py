@@ -38,13 +38,13 @@ class SaleOrderLine(Model):
     def _compute_lowest_discount(self, cr, uid, floor_price, price_unit):
         diff = (floor_price - price_unit)
         disc = diff / price_unit
-        return abs(round(disc*100, 2))
+        return abs(round(disc * 100, 2))
 
     def _compute_lowest_price(self, cr, uid, floor_price, discount):
         if discount == 100.0:
             res = 0.0
         else:
-            res = floor_price / (1-(discount / 100.0))
+            res = floor_price / (1 - (discount / 100.0))
         return res
 
     def product_id_change(self, cr, uid, ids, *args, **kwargs):

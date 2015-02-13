@@ -27,7 +27,7 @@
  'depends': [
      'stock', 'product', 'sale',
      'sale_line_watcher'
-     ],
+ ],
  'description': """
 Floor price on product
 ======================
