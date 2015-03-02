@@ -20,7 +20,7 @@
 ##############################################################################
 {'name' : 'Floor price on product',
  'version' : '5.1',
- 'author' : 'Camptocamp',
+ 'author' : "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'Tool',
  'complexity': "normal",  # easy, normal, expert
