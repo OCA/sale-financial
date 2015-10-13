@@ -16,8 +16,8 @@ Unported addons
 ---------------
 addon | version | summary
 --- | --- | ---
-[sale_floor_price](__unported__/sale_floor_price/) | 5.1 (unported) | Floor price on product
-[sale_line_watcher](__unported__/sale_line_watcher/) | 0.1 (unported) | Sale order line watcher
-[sale_markup](__unported__/sale_markup/) | 5.1 (unported) | Markup rate on product and sales
+[sale_floor_price](sale_floor_price/) | 5.1 (unported) | Floor price on product
+[sale_line_watcher](sale_line_watcher/) | 0.1 (unported) | Sale order line watcher
+[sale_markup](sale_markup/) | 5.1 (unported) | Markup rate on product and sales
 
 [//]: # (end addons)
