@@ -97,10 +97,11 @@ class SaleOrderLine(Model):
             help='Markup is [ margin / sale_price ], changing it will '
                  'update the discount'),
         'cost_price': fields.float(
-            'Historical Cost Price',
+            'Cost Price',
             digits_compute=dp.get_precision('Sale Price'),
-            help='The cost price of the product at the time of the creation '
-                 'of the sale order'),
+            help='The cost of the product. The product cost price at the '
+                 'time of creating the sales order is proposed, '
+                 'but can be changed by the user.'),
         # boolean fields to skip onchange loop
         'break_onchange_discount': fields.function(
             _get_break,
@@ -145,6 +146,8 @@ class SaleOrderLine(Model):
             product_obj = self.pool['product.product']
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
+            cost_price = context.get('cost_price', 0.0)
+
             if 'value' not in res:
                 res['value'] = {}
             if 'price_unit' in res['value']:
@@ -154,7 +157,9 @@ class SaleOrderLine(Model):
                                                     product_id,
                                                     product_uom,
                                                     pricelist,
-                                                    sale_price)[product_id]
+                                                    sale_price,
+                                                    cost_price,
+                                                    False)[product_id]
 
             new_margin = round(markup_res['commercial_margin'],
                                _prec(self, cr, uid))
@@ -197,6 +202,8 @@ class SaleOrderLine(Model):
         res = super(SaleOrderLine, self).onchange_discount(
             cr, uid, ids, context=context, **kwargs
         )
+        if 'value' not in res:
+            res['value'] = {}
         product_id = context.get('product_id')
         if context.get('break_onchange'):
             res['value']['break_onchange_discount'] = False
@@ -207,6 +214,7 @@ class SaleOrderLine(Model):
             pricelist = context.get('pricelist')
             markup = context.get('markup_rate', 0.0)
             margin = context.get('commercial_margin', 0.0)
+            cost_price = context.get('cost_price', 0.0)
 
             product_obj = self.pool['product.product']
             if 'value' not in res:
@@ -220,7 +228,8 @@ class SaleOrderLine(Model):
                                                     product_id,
                                                     product_uom,
                                                     pricelist,
-                                                    sale_price)[product_id]
+                                                    sale_price,
+                                                    cost_price)[product_id]
 
             new_margin = round(markup_res['commercial_margin'],
                                _prec(self, cr, uid))
@@ -286,7 +295,7 @@ class SaleOrderLine(Model):
                                                     product,
                                                     uom,
                                                     pricelist,
-                                                    sale_price)[product]
+                                                    sale_price, None)[product]
 
             res['value']['cost_price'] = round(markup_res['cost_price'],
                                                _prec(self, cr, uid))
@@ -437,3 +446,7 @@ class SaleOrderLine(Model):
                 'break_onchange_markup_rate': True,
             })
         return res
+
+    def onchange_cost_price(self, cr, uid, ids, context=None, **kwargs):
+        return self.onchange_price_unit(cr, uid, ids, context=context,
+                                        **kwargs)

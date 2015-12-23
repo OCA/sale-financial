@@ -61,11 +61,11 @@
         </xpath>
         <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']"
                position="attributes">
-          <attribute name="context_markup">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin}</attribute>
+          <attribute name="context_markup">{'price_unit': price_unit, 'product_id': product_id, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin, 'cost_price': cost_price}</attribute>
         </xpath>
         <xpath expr="//field[@name='order_line']/form//field[@name='discount']"
                position="attributes">
-          <attribute name="context_markup">{'product_id': product_id, 'price_unit': price_unit, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin, 'break_onchange': break_onchange_discount}</attribute>
+          <attribute name="context_markup">{'product_id': product_id, 'price_unit': price_unit, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin, 'break_onchange': break_onchange_discount, 'cost_price': cost_price}</attribute>
         </xpath>
         <xpath expr="//field[@name='order_line']/form//field[@name='name']"
                position="after">
@@ -79,7 +79,10 @@
                    on_change="onchange_markup_rate(context)"
                    groups="base.group_sale_manager"/>
             <field name="cost_price"
-                   groups="base.group_sale_manager" invisible="1"/>
+                   groups="base.group_sale_manager"
+                   context="{'price_unit': price_unit, 'product_id': product_id, 'discount': discount, 'product_uom': product_uom, 'pricelist': parent.pricelist_id, 'markup_rate': markup_rate, 'commercial_margin': commercial_margin, 'cost_price': cost_price}"
+                   on_change="onchange_cost_price(context)"
+                   />
              <field name="break_onchange_commercial_margin" invisible="1"/>
              <field name="break_onchange_markup_rate" invisible="1"/>
              <field name="break_onchange_discount" invisible="1"/>
