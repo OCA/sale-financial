@@ -65,7 +65,7 @@ class Product(orm.Model):
 
     def compute_markup(self, cr, uid, ids,
                        product_uom=None, pricelist=None, sale_price=None,
-                       properties=None, context=None):
+                       cost_price=None, properties=None, context=None):
         """
         compute markup
 
@@ -86,6 +86,7 @@ class Product(orm.Model):
         cost_price_context.update({
             'product_uom': product_uom,
             'properties': properties})
+
         purchase_prices = self.get_cost_field(cr, uid, ids, cost_price_context)
         # if purchase prices failed returned a dict of default values
         if not purchase_prices:
@@ -103,6 +104,8 @@ class Product(orm.Model):
                 catalog_price = pr.list_price
             else:
                 catalog_price = sale_price
+            if cost_price:
+                purchase_prices[pr.id] = cost_price
 
             res[pr.id].update({
                 'commercial_margin': catalog_price - purchase_prices[pr.id],

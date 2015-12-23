@@ -20,7 +20,7 @@
 ##############################################################################
 {'name': 'Markup rate on product and sales',
  'version': '5.1',
- 'author': 'Camptocamp',
+ 'author': "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'version',
  'complexity': "normal",
@@ -31,7 +31,7 @@
      'sale',
      'web_context_tunnel',
      'sale_line_watcher',
-     ],
+ ],
  'description': """
 Markup rate on product and sales
 ================================
@@ -42,7 +42,7 @@ Display the product and sale markup in the appropriate views
  'data': [
      'sale_view.xml',
      'product_view.xml',
-     ],
+ ],
  'test': [],
  'installable': True,
  'auto_install': False,
