@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+        <record id="invoice_form" model="ir.ui.view">
+            <field name="name">Add sale button to invoice</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/field[@name='type']" position="after">
+                    <field name="has_sale_order" invisible="1" />
+                </xpath>
+                <field name="state" position="before">
+                    <button name="open_sale_order" string="View Sale Order"
+                            type="object" groups="base.group_sale_salesman"
+                            attrs="{'invisible': [('has_sale_order', '=', False)]}"
+                            />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
