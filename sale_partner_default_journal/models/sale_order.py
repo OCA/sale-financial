@@ -7,11 +7,10 @@ from openerp import api, models
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    @api.model
-    def _prepare_invoice(self, order, lines):
-        result = super(SaleOrder, self)._prepare_invoice(
-            order, lines)
+    @api.multi
+    def _prepare_invoice(self):
+        result = super(SaleOrder, self)._prepare_invoice()
         result.update(
-            journal_id=order.partner_invoice_id.default_sale_journal_id.id
+            journal_id=self.partner_invoice_id.default_sale_journal_id.id
         )
         return result

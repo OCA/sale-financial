@@ -5,7 +5,7 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="account.view_partner_property_form" />
             <field name="arch" type="xml">
-                <field name="property_account_receivable" position="after">
+                <field name="property_account_receivable_id" position="after">
                     <field name="default_sale_journal_id" context="{'default_type': 'sale'}" />
                 </field>
             </field>
