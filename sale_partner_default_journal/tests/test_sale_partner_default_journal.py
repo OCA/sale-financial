@@ -22,22 +22,14 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             journal,
         )
         # invoice onchange
-        onchange = self.env['account.invoice'].onchange_company_id(
-            p.company_id.id, p.id, 'out_invoice', False, False
-        )
-        self.assertTrue('journal_id' not in onchange['value'])
-        onchange = self.env['account.invoice'].onchange_partner_id(
-            'out_invoice', p.id
-        )
-        self.assertEqual(
-            journal.id,
-            onchange['value']['journal_id']
-        )
+        invoice = self.env['account.invoice'].new({
+            'type': 'out_invoice',
+            'partner_id': p.id,
+        })
+        invoice._onchange_partner_id()
+        self.assertEqual(journal.id, invoice.journal_id.id)
         # invoice created from order
-        invoice_data = self.env['sale.order']._prepare_invoice(
-            self.env['sale.order'].create({
-                'partner_id': p.id,
-            }),
-            []
-        )
+        invoice_data = self.env['sale.order'].create({
+            'partner_id': p.id,
+        })._prepare_invoice()
         self.assertEqual(journal.id, invoice_data['journal_id'])
