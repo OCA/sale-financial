@@ -7,6 +7,7 @@
             <field name="arch" type="xml">
                 <field name="property_account_receivable_id" position="after">
                     <field name="default_sale_journal_id" context="{'default_type': 'sale'}" />
+                    <field name="default_refund_journal_id" context="{'default_type': 'sale'}" />
                 </field>
             </field>
         </record>

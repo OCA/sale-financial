@@ -4,3 +4,5 @@
 from . import res_partner
 from . import account_invoice
 from . import sale_order
+from . import stock_return_picking
+from . import sale_make_invoice_advance

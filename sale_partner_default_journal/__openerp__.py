@@ -11,6 +11,7 @@
     "generating invoices",
     "depends": [
         'sale',
+        'sale_stock_picking_return_invoicing',
     ],
     "data": [
         "views/res_partner.xml",

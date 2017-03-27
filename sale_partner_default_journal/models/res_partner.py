@@ -13,6 +13,14 @@ class ResPartner(models.Model):
         domain=[('type', '=', 'sale')],
     )
 
+    default_refund_journal_id = fields.Many2one(
+        'account.journal', string='Sale journal', company_dependent=True,
+        help='Use the selected journal instead of the default one',
+        default = lambda x: x.env.ref(
+            'sale_partner_default_journal.property_res_partner_default_refund_journal_id'
+        ),
+        domain=[('type', '=', 'purchase')],
+    )
     @api.model
     def _commercial_fields(self):
         return super(ResPartner, self)._commercial_fields() + [
