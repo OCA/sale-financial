@@ -12,6 +12,7 @@ This project provides modules to manage the financial aspect of Sales:
 - ...
 
 [//]: # (addons)
+
 Unported addons
 ---------------
 addon | version | summary
