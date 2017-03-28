@@ -9,10 +9,9 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         import pudb
         pudb.set_trace()
         p = self.env['res.partner'].create({
-                     'name': 'test partner',
-                     'customer': True,
+                     'name': 'testpartner',
+                     'customer': True
                  })
-
         # the installation should have found a journal
         self.assertTrue(p.default_sale_journal_id)
         # check if changing this cascades to the children
