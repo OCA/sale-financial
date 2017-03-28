@@ -83,12 +83,27 @@ class TestSalePartnerDefaultJournal(TransactionCase):
        
 
         # revert delivery
+        return_wiz_model = self.env['stock.return.picking.line']
+        return_wiz = return_wiz_model.create(
+            {
+                'product_id': product_sale.id,
+                'quantity': 2
+            })
+        return_wiz.with_context(active_id=delivery.id)._create_returns()
+        
 
         # validate
+        delivery.do_new_transfer()
 
         # check sale has 2 deliveries
+        sale.assertEqual(sale.delivery_count, 2, 'The new delivery has not been
+                         created after a return')
 
+        sale.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
         # do invoice from sale 
+
+
+
 
         # verify that we have 2 invoices , one with journal_default sale and
         # the other one with journal default returns and type out_refund
