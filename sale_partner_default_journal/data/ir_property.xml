@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
-    <data noupdate="1">
+    <data noupdate="0">
 
         <record id="property_res_partner_default_sale_journal_id" model="ir.property">
             <field name="name">Default sale journal</field>
