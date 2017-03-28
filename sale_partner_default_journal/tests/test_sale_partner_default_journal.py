@@ -8,7 +8,11 @@ class TestSalePartnerDefaultJournal(TransactionCase):
     def test_sale_partner_default_journal(self):
         import pudb
         pudb.set_trace()
-        p = self.env.ref('base.res_partner_1')
+        p = self.env['res.partner'].create({
+                     'name': 'test partner',
+                     'customer': True,
+                 })
+
         # the installation should have found a journal
         self.assertTrue(p.default_sale_journal_id)
         # check if changing this cascades to the children
@@ -20,7 +24,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         p.default_sale_journal_id = journal
 
         self.assertEqual(
-            self.env.ref('base.res_partner_address_1').default_sale_journal_id,
+            p.default_sale_journal_id,
             journal,
         )
         # invoice onchange
@@ -37,7 +41,25 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         self.assertEqual(journal.id, invoice_data['journal_id'])
 
         # create product deliverable and sale
-        product_sale = self.env.ref('product.product_product_43'),
+        product_tmpl = self.env['product.template'].create({
+            'name': 'Templatetest',
+            'route_ids':[(6, 0,
+                          [self.env.ref('purchase.route_warehouse0_buy').id,
+                               self.env.ref('stock.route_warehouse0_mto').id])]
+        })
+
+        pricelist =  self.env['product.pricelist'].create({
+            'active': True,
+            'name': 'Test Pricelist',
+            'currency_id': self.env.ref('base.EUR').id
+        })
+
+        product_sale = self.env['product.product'].create({
+            'name': 'producttest',
+            'product_tmpl_id': product_tmpl.id,
+            'type': 'product'
+        })
+
         sale = self.env['sale.order'].create({
             'partner_id': p.id,
             'partner_invoice_id': p.id,
@@ -46,9 +68,8 @@ class TestSalePartnerDefaultJournal(TransactionCase):
                                 'product_id': product_sale.id,
                                 'product_uom_qty': 2,
                                 'product_uom': product_sale.uom_id.id,
-                                'price_unit':
-                                product_sale.list_price})],
-            'pricelist_id': self.env.ref('product.list0').id,
+                                'price_unit':  product_sale.list_price})],
+            'pricelist_id': pricelist.id,
          })
 
         #create return journal and assign it
@@ -67,9 +88,6 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         #make an invoice and verify it is on journal
         invoice_id =  sale.action_invoice_create()
         invoice = self.env['account.invoice'].browse(invoice_id)
-
-
-
         self.assertEqual(invoice.journal_id, p.default_sale_journal_id,
                          'default sale journal was not assigned to invoice'
                          'after sale confirmation')
@@ -80,7 +98,6 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             ] 
         )
         self.assertEqual(len(delivery), 1, 'sale generated more than one delivery' )
-       
 
         # revert delivery
         return_wiz_model = self.env['stock.return.picking.line']
@@ -90,17 +107,20 @@ class TestSalePartnerDefaultJournal(TransactionCase):
                 'quantity': 2
             })
         return_wiz.with_context(active_id=delivery.id)._create_returns()
-        
-
         # validate
         delivery.do_new_transfer()
 
         # check sale has 2 deliveries
-        sale.assertEqual(sale.delivery_count, 2, 'The new delivery has not been
-                         created after a return')
+        sale.assertEqual(
+            sale.delivery_count, 2,
+            'The new delivery has not been created after a return'
+        )
 
         sale.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
-        # do invoice from sale 
+        # do invoice from sale
+
+        invoice_id =  sale.action_invoice_create()
+
 
 
 
