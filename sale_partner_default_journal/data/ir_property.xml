@@ -2,17 +2,6 @@
 <openerp>
     <data noupdate="1">
 
-        <record id="sequence_purchase_refund_journal" model="ir.sequence">
-            <field name="name">Purchase Supplier Journal</field>
-            <field name="code">ir.sequence</field>
-            <field name="prefix"> ecnj/%(year)s/</field>
-            <field eval="1" name="number_next"/>
-            <field eval="1" name="number_increment"/>
-            <field eval="False" name="use_date_range"/>
-            <field eval="ref('base.main_company')" name="company_id"/>
-            <field name="padding">4</field>
-        </record>
-
         <record id="property_res_partner_default_sale_journal_id" model="ir.property">
             <field name="name">Default sale journal</field>
             <field name="fields_id" ref="sale_partner_default_journal.field_res_partner_default_sale_journal_id" />
@@ -20,10 +9,13 @@
             <field name="company_id" ref="base.main_company"/>
         </record>
 
-        <record id="property_res_partner_default_refund_journal_id" model="ir.property">
+        <!--  SET where do the returns invoices need to be placed by setting
+              this property -->
+
+        <record id="property_res_partner_default_return_journal_id" model="ir.property">
             <field name="name">Default sale returns journal</field>
-            <field name="fields_id" ref="sale_partner_default_journal.field_res_partner_default_refund_journal_id" />
-            <field name="value" eval="'account.journal,%s' % obj([]).search([('type', '=', 'purchase'), ('sequence_id' , '=' , ref('sale_partner_default_journal.sequence_purchase_refund_journal')),  ('company_id', '=', ref('base.main_company'))], limit=1).id" model="account.journal" />
+            <field name="fields_id" ref="sale_partner_default_journal.field_res_partner_default_return_journal_id" />
+            <field name="value" eval="'account.journal,%s' % obj([]).search([('type', '=', 'purchase'),  ('company_id', '=', ref('base.main_company'))], limit=1).id" model="account.journal" />
             <field name="company_id" ref="base.main_company"/>
         </record>
     </data>
