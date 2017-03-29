@@ -8,11 +8,11 @@ class TestSalePartnerDefaultJournal(TransactionCase):
     def test_sale_partner_default_journal(self):
         import pudb
         pudb.set_trace()
-        p = self.env['res.partner'].create({
-                     'name': 'testpartner',
-                     'customer': True
-                 })
         # the installation should have found a journal
+
+        p = self.env['res.partner'].create(
+            { 'name': 'tstpartner','customer': True,
+            })
         self.assertTrue(p.default_sale_journal_id)
         # check if changing this cascades to the children
         journal = self.env['account.journal'].create({
@@ -20,6 +20,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             'code': 'def',
             'type': 'sale',
         })
+
         p.default_sale_journal_id = journal
 
         self.assertEqual(
@@ -27,6 +28,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             journal,
         )
         # invoice onchange
+
         invoice = self.env['account.invoice'].new({
             'type': 'out_invoice',
             'partner_id': p.id,

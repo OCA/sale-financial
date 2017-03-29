@@ -12,6 +12,7 @@
     "depends": [
         'sale',
         'sale_stock_picking_return_invoicing',
+        'purchase'
     ],
     "data": [
         "views/res_partner.xml",
