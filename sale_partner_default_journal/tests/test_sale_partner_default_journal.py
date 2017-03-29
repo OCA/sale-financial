@@ -6,12 +6,11 @@ from openerp.tests.common import TransactionCase
 
 class TestSalePartnerDefaultJournal(TransactionCase):
     def test_sale_partner_default_journal(self):
-        import pudb
-        pudb.set_trace()
         # the installation should have found a journal
-
         p = self.env['res.partner'].create(
-            { 'name': 'tstpartner','customer': True,
+            {
+             'name': 'partner1',
+             'customer': True,
             })
         self.assertTrue(p.default_sale_journal_id)
         # check if changing this cascades to the children
@@ -83,7 +82,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         p.default_return_journal_id = journal_returns
 
         #confirm the sale
-        sale.force_quotation_send()
+        #sale.force_quotation_send()
         sale.action_confirm()
 
         #make an invoice and verify it is on journal
@@ -94,42 +93,48 @@ class TestSalePartnerDefaultJournal(TransactionCase):
                          'after sale confirmation')
         delivery = self.env['stock.picking'].search(
             ['|',
-             ('group_id', '=', sale.procurement_group_id),
+             ('group_id', '=', sale.procurement_group_id.id),
              ('origin', '=', sale.name)
             ] 
         )
-        self.assertEqual(len(delivery), 1, 'sale generated more than one delivery' )
+        self.assertEqual(
+            len(delivery), 1,
+            'sale generated more than one delivery'
+        )
 
         # revert delivery
-        return_wiz_model = self.env['stock.return.picking.line']
+        return_wiz_model = self.env['stock.return.picking']
         return_wiz = return_wiz_model.create(
             {
-                'product_id': product_sale.id,
-                'quantity': 2
-            })
-        return_wiz.with_context(active_id=delivery.id)._create_returns()
-        # validate
-        delivery.do_new_transfer()
+              'product_return_moves': [(
+                0, 0,
+                {
+                    'product_id': sale.order_line[0].product_id.id,
+                    'quantity': sale.order_line[0].product_uom_qty,
+                    'move_id': delivery.move_lines[0].id
+                }
+             )]
+            }
+        )
 
+
+        delivery.do_new_transfer()
+        result = return_wiz.with_context(active_id=delivery.id).create_returns()
+        # validate
         # check sale has 2 deliveries
-        sale.assertEqual(
+        self.assertEqual(
             sale.delivery_count, 2,
             'The new delivery has not been created after a return'
         )
-
-        sale.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
+        # confirm the new picking
+        self.env['stock.picking'].browse(
+            result['res_id']).do_new_transfer()
         # do invoice from sale
-
-        invoice_id =  sale.action_invoice_create()
-
-
-
-
-
+        invoice_id = sale.action_invoice_create()
+        # verify new invoices
         # verify that we have 2 invoices , one with journal_default sale and
         # the other one with journal default returns and type out_refund
-
-
+        self.assertEqual(sale.invoice_count, 2, 'wrong number of invoices')
 
 
 
