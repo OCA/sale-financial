@@ -20,12 +20,16 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             'type': 'sale',
         })
 
+        import pudb
+        pudb.set_trace()
         p.default_sale_journal_id = journal
 
         self.assertEqual(
             p.default_sale_journal_id,
             journal,
         )
+
+
 
         # create product deliverable and sale
         product_tmpl = self.env['product.template'].create({
@@ -83,6 +87,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         product_sale = self.env['product.product'].create({
             'name': 'producttest',
             'product_tmpl_id': product_tmpl.id,
+            'list_sale': 12,
             'type': 'product'
 
         })
@@ -111,8 +116,6 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         #confirm the sale
         sale.action_confirm()
         #sale.write({'state':'sale'})
-
-
         #make an invoice and verify it is on journal
         delivery = self.env['stock.picking'].search(
             ['|',
@@ -124,7 +127,13 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             len(delivery), 1,
             'sale generated more than one delivery'
         )
-
+        # invoice
+        inv_confirm_wiz2 =  self.env['sale.advance.payment.inv'].create(
+           {'advance_payment_method':  'delivered'}
+        )
+        inv_confirm_wiz2.with_context(active_ids=sale.id).create_invoices()
+        self.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
+        #pay invoice
         # revert delivery
         return_wiz_model = self.env['stock.return.picking']
         return_wiz = return_wiz_model.create(
@@ -139,16 +148,9 @@ class TestSalePartnerDefaultJournal(TransactionCase):
              )]
             }
         )
-
-
         delivery.do_new_transfer()
         # we have no stock force it.
         delivery.write({'state': 'done'})
-
-        inv_confirm_wiz =  self.env['sale.advance.payment.inv'].create(
-           {'advance_payment_method':  'fixed',  'amount': '2'}
-        )
-        inv_confirm_wiz.with_context(active_ids=sale.id).create_invoices()
         result_picking = return_wiz.with_context(
             active_id=delivery.id).create_returns()
         # confirm the new picking return
@@ -157,44 +159,12 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         return_delivery.do_new_transfer()
         #force it
         return_delivery.write({'state': 'done'})
-
         # validate
         # check sale has 2 deliveries
         self.assertEqual(
             sale.delivery_count, 2,
             'The new delivery has not been created after a return'
         )
-
-        # do invoice from sale
-        inv_confirm_wiz2 =  self.env['sale.advance.payment.inv'].create(
-           {'advance_payment_method':  'fixed',  'amount': '2'}
-        )
-        inv_confirm_wiz2.with_context(active_ids=sale.id).create_invoices()
-        # verify new invoices
-        # verify that we have 2 invoices , one with journal_default sale and
-        # the other one with journal default returns and type out_refund
-        self.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
-
-
-        # invoice onchange, generic
-    
-        invoice = self.env['account.invoice'].new({
-            'type': 'out_invoice',
-            'partner_id': p.id,
-        })
-        invoice._onchange_partner_id()
-        self.assertEqual(journal.id, invoice.journal_id.id)
-        # invoice created from order
-
-        invoice_data = self.env['sale.order'].create({
-            'partner_id': p.id,
-        })._prepare_invoice()
-        self.assertEqual(journal.id, invoice_data['journal_id'])
-
-        invoice = self.env['account.invoice'].browse(invoice_id)
-        self.assertEqual(invoice.journal_id, p.default_sale_journal_id,
-                         'default sale journal was not assigned to invoice'
-                         'after sale confirmation')
 
 
 
