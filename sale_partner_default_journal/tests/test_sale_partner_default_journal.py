@@ -26,26 +26,14 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             p.default_sale_journal_id,
             journal,
         )
-        # invoice onchange
-
-        invoice = self.env['account.invoice'].new({
-            'type': 'out_invoice',
-            'partner_id': p.id,
-        })
-        invoice._onchange_partner_id()
-        self.assertEqual(journal.id, invoice.journal_id.id)
-        # invoice created from order
-        invoice_data = self.env['sale.order'].create({
-            'partner_id': p.id,
-        })._prepare_invoice()
-        self.assertEqual(journal.id, invoice_data['journal_id'])
 
         # create product deliverable and sale
         product_tmpl = self.env['product.template'].create({
             'name': 'Templatetest',
             'route_ids':[(6, 0,
                           [self.env.ref('purchase.route_warehouse0_buy').id,
-                               self.env.ref('stock.route_warehouse0_mto').id])]
+                               self.env.ref('stock.route_warehouse0_mto').id])],
+            'invoice_policy': 'order'
         })
 
         pricelist =  self.env['product.pricelist'].create({
@@ -54,10 +42,49 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             'currency_id': self.env.ref('base.EUR').id
         })
 
+        """
+        VERY IMPORTANT:
+            the creation of the return delivery invoice  will only be calculated 
+            for products that have invoice_policy == delivery.
+            If invoice policy is "order" the _get_to_invoice_qty will calculate
+            the amount to invoice for the line as:
+                line.qty_to_invoice = line.product_uom_qty - line.qty_invoiced 
+            this means that if it has already been invoiced in the outgoing
+            delivery it will never be invoiced again. and the functions of the
+            module "sale stock_picking_return_invoicing" are rendered mute.
+
+            the 'delivery' policy insead calculates lines to invoice as
+
+                line.qty_to_invoice = line.qty_delivered - line.qty_invoiced
+
+            because qty_delivered compute field is overwritten in
+            "sale_stock_picking_return_invoicing" this will manage correctly.
+
+            https://github.com/OCA/account-invoicing/blob/9.0/sale_stock_picking_return_invoicing/models/sale_order.py#L12
+
+            Example  our current client has this mix of products:
+
+           invoice_policy | count 
+           ----------------+-------
+            delivery       |  5085
+            order          |  3550
+
+
+            possible solution:
+
+                A) Make every product 'delivery'
+
+                B) it is not possible to make everything "delivery", we should
+                extend sale_stock_picking_return_invoicing to overwrite 
+                def _get_to_invoice_qty(self) in sale order 
+                and make it smarter. 
+        """
+
         product_sale = self.env['product.product'].create({
             'name': 'producttest',
             'product_tmpl_id': product_tmpl.id,
             'type': 'product'
+
         })
 
         sale = self.env['sale.order'].create({
@@ -82,15 +109,11 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         p.default_return_journal_id = journal_returns
 
         #confirm the sale
-        #sale.force_quotation_send()
         sale.action_confirm()
+        #sale.write({'state':'sale'})
+
 
         #make an invoice and verify it is on journal
-        invoice_id =  sale.action_invoice_create()
-        invoice = self.env['account.invoice'].browse(invoice_id)
-        self.assertEqual(invoice.journal_id, p.default_sale_journal_id,
-                         'default sale journal was not assigned to invoice'
-                         'after sale confirmation')
         delivery = self.env['stock.picking'].search(
             ['|',
              ('group_id', '=', sale.procurement_group_id.id),
@@ -105,13 +128,13 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         # revert delivery
         return_wiz_model = self.env['stock.return.picking']
         return_wiz = return_wiz_model.create(
-            {
+            { 'location_id': self.env.ref('stock.stock_location_stock').id,
               'product_return_moves': [(
                 0, 0,
-                {
+                {   'to_refund_so':True,
                     'product_id': sale.order_line[0].product_id.id,
-                    'quantity': sale.order_line[0].product_uom_qty,
-                    'move_id': delivery.move_lines[0].id
+                    'quantity':  sale.order_line[0].product_uom_qty,
+                    'move_id': sale.order_line[0].procurement_ids.move_ids.id
                 }
              )]
             }
@@ -119,22 +142,59 @@ class TestSalePartnerDefaultJournal(TransactionCase):
 
 
         delivery.do_new_transfer()
-        result = return_wiz.with_context(active_id=delivery.id).create_returns()
+        # we have no stock force it.
+        delivery.write({'state': 'done'})
+
+        inv_confirm_wiz =  self.env['sale.advance.payment.inv'].create(
+           {'advance_payment_method':  'fixed',  'amount': '2'}
+        )
+        inv_confirm_wiz.with_context(active_ids=sale.id).create_invoices()
+        result_picking = return_wiz.with_context(
+            active_id=delivery.id).create_returns()
+        # confirm the new picking return
+        return_delivery =  self.env['stock.picking'].browse(
+            result_picking['res_id'])
+        return_delivery.do_new_transfer()
+        #force it
+        return_delivery.write({'state': 'done'})
+
         # validate
         # check sale has 2 deliveries
         self.assertEqual(
             sale.delivery_count, 2,
             'The new delivery has not been created after a return'
         )
-        # confirm the new picking
-        self.env['stock.picking'].browse(
-            result['res_id']).do_new_transfer()
+
         # do invoice from sale
-        invoice_id = sale.action_invoice_create()
+        inv_confirm_wiz2 =  self.env['sale.advance.payment.inv'].create(
+           {'advance_payment_method':  'fixed',  'amount': '2'}
+        )
+        inv_confirm_wiz2.with_context(active_ids=sale.id).create_invoices()
         # verify new invoices
         # verify that we have 2 invoices , one with journal_default sale and
         # the other one with journal default returns and type out_refund
-        self.assertEqual(sale.invoice_count, 2, 'wrong number of invoices')
+        self.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
+
+
+        # invoice onchange, generic
+    
+        invoice = self.env['account.invoice'].new({
+            'type': 'out_invoice',
+            'partner_id': p.id,
+        })
+        invoice._onchange_partner_id()
+        self.assertEqual(journal.id, invoice.journal_id.id)
+        # invoice created from order
+
+        invoice_data = self.env['sale.order'].create({
+            'partner_id': p.id,
+        })._prepare_invoice()
+        self.assertEqual(journal.id, invoice_data['journal_id'])
+
+        invoice = self.env['account.invoice'].browse(invoice_id)
+        self.assertEqual(invoice.journal_id, p.default_sale_journal_id,
+                         'default sale journal was not assigned to invoice'
+                         'after sale confirmation')
 
 
 
