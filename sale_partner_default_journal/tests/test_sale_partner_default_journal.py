@@ -20,8 +20,6 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             'type': 'sale',
         })
 
-        import pudb
-        pudb.set_trace()
         p.default_sale_journal_id = journal
 
         self.assertEqual(
