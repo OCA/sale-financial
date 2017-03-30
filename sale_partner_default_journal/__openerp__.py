@@ -10,7 +10,8 @@
     "summary": "Allows you to define a default journal per partner for "
     "generating invoices",
     "depends": [
-        'sale',
+        'sale_stock_picking_return_invoicing',
+        'purchase'
     ],
     "data": [
         "views/res_partner.xml",
