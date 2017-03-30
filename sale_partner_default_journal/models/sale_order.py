@@ -15,7 +15,6 @@ class SaleOrder(models.Model):
             )
         return result
 
-
     @api.multi
     def action_invoice_create(self, grouped=False, final=False):
         for this in self:

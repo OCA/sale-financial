@@ -9,8 +9,8 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         # the installation should have found a journal
         p = self.env['res.partner'].create(
             {
-             'name': 'partner1',
-             'customer': True,
+                'name': 'partner1',
+                'customer': True,
             })
         self.assertTrue(p.default_sale_journal_id)
         # check if changing this cascades to the children
@@ -27,14 +27,12 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             journal,
         )
 
-
-
         # create product deliverable and sale
         product_tmpl = self.env['product.template'].create({
             'name': 'Templatetest',
             'route_ids':[(6, 0,
                           [self.env.ref('purchase.route_warehouse0_buy').id,
-                               self.env.ref('stock.route_warehouse0_mto').id])],
+                           self.env.ref('stock.route_warehouse0_mto').id])],
             'invoice_policy': 'order'
         })
 
@@ -51,9 +49,9 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             If invoice policy is "order" the _get_to_invoice_qty will calculate
             the amount to invoice for the line as:
                 line.qty_to_invoice = line.product_uom_qty - line.qty_invoiced 
-            this means that if it has already been invoiced in the outgoing
-            delivery it will never be invoiced again. and the functions of the
-            module "sale stock_picking_return_invoicing" are rendered mute.
+                this means that if it has already been invoiced in the outgoing
+                delivery it will never be invoiced again. and the functions of the
+                module "sale stock_picking_return_invoicing" are rendered mute.
 
             the 'delivery' policy insead calculates lines to invoice as
 
@@ -68,8 +66,8 @@ class TestSalePartnerDefaultJournal(TransactionCase):
 
            invoice_policy | count 
            ----------------+-------
-            delivery       |  5085
-            order          |  3550
+           delivery       |  5085
+           order          |  3550
 
 
             possible solution:
@@ -80,7 +78,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
                 extend sale_stock_picking_return_invoicing to overwrite 
                 def _get_to_invoice_qty(self) in sale order 
                 and make it smarter. 
-        """
+                """
 
         product_sale = self.env['product.product'].create({
             'name': 'producttest',
@@ -95,12 +93,12 @@ class TestSalePartnerDefaultJournal(TransactionCase):
             'partner_invoice_id': p.id,
             'partner_shipping_id': p.id,
             'order_line': [(0, 0, {'name': product_sale.name,
-                                'product_id': product_sale.id,
-                                'product_uom_qty': 2,
-                                'product_uom': product_sale.uom_id.id,
-                                'price_unit':  product_sale.list_price})],
+                                   'product_id': product_sale.id,
+                                   'product_uom_qty': 2,
+                                   'product_uom': product_sale.uom_id.id,
+                                   'price_unit':  product_sale.list_price})],
             'pricelist_id': pricelist.id,
-         })
+        })
 
         #create return journal and assign it
 
@@ -127,7 +125,7 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         )
         # invoice
         inv_confirm_wiz2 =  self.env['sale.advance.payment.inv'].create(
-           {'advance_payment_method':  'delivered'}
+            {'advance_payment_method':  'delivered'}
         )
         inv_confirm_wiz2.with_context(active_ids=sale.id).create_invoices()
         self.assertEqual(sale.invoice_count, 1, 'wrong number of invoices')
@@ -136,13 +134,13 @@ class TestSalePartnerDefaultJournal(TransactionCase):
         return_wiz_model = self.env['stock.return.picking']
         return_wiz = return_wiz_model.create(
             { 'location_id': self.env.ref('stock.stock_location_stock').id,
-              'product_return_moves': [(
-                0, 0,
-                {   'to_refund_so':True,
-                    'product_id': sale.order_line[0].product_id.id,
-                    'quantity':  sale.order_line[0].product_uom_qty,
-                    'move_id': sale.order_line[0].procurement_ids.move_ids.id
-                }
+             'product_return_moves': [(
+                 0, 0,
+                 {   'to_refund_so':True,
+                  'product_id': sale.order_line[0].product_id.id,
+                  'quantity':  sale.order_line[0].product_uom_qty,
+                  'move_id': sale.order_line[0].procurement_ids.move_ids.id
+                 }
              )]
             }
         )
