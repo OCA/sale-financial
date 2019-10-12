@@ -10,5 +10,3 @@ This project provides modules to manage the financial aspect of Sales:
 - Compute margin on SO and lines
 - Forbid to confirm a SO if prices are below a defined limit
 - ...
-
-
