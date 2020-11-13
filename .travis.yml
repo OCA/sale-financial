@@ -37,6 +37,11 @@ env:
     - VERSION="13.0" TESTS="0" LINT_CHECK="0" MAKEPOT="0"
 
 install:
+  #  FIXME:
+  - git clone --branch 13.0-add_account_fiscal_position_allowed_journal_tbi
+    https://github.com/acsone/account-financial-tools.git PR937
+  - rm -rf account_fiscal_position_allowed_journal && cp -ar
+    PR937/account_fiscal_position_allowed_journal .
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git
     ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
