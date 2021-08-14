@@ -15,10 +15,10 @@ This project provides modules to manage the financial aspect of Sales:
 
 Unported addons
 ---------------
-addon | version | summary
---- | --- | ---
-[sale_floor_price](sale_floor_price/) | 5.1 (unported) | Floor price on product
-[sale_line_watcher](sale_line_watcher/) | 0.1 (unported) | Sale order line watcher
-[sale_markup](sale_markup/) | 5.1 (unported) | Markup rate on product and sales
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[sale_floor_price](sale_floor_price/) | 5.1 (unported) |  | Floor price on product
+[sale_line_watcher](sale_line_watcher/) | 0.1 (unported) |  | Sale order line watcher
+[sale_markup](sale_markup/) | 5.1 (unported) |  | Markup rate on product and sales
 
 [//]: # (end addons)
