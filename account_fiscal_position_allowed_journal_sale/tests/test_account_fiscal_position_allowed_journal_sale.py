@@ -1,31 +1,39 @@
 # Copyright 2020 ACSONE SA/NV
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.tests.common import SavepointCase
+from odoo.tests import tagged
+
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-class TestAccountFiscalPositionAllowedJournalSale(SavepointCase):
+@tagged("post_install", "-at_install")
+class TestAccountFiscalPositionAllowedJournalSale(AccountTestInvoicingCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
+        cls.env.user.group_ids += cls.env.ref("sales_team.group_sale_salesman")
+
         # MODELS
-        cls.account_model = cls.env["account.account"]
         cls.fiscal_position_model = cls.env["account.fiscal.position"]
         cls.journal_model = cls.env["account.journal"]
-        cls.partner_model = cls.env["res.partner"]
-        cls.product_product_model = cls.env["product.product"]
         cls.sale_order_model = cls.env["sale.order"]
 
         # INSTANCES
         cls.fiscal_position_01 = cls.fiscal_position_model.create(
             {"name": "Fiscal position 01"}
         )
-        cls.journal_01 = cls.journal_model.search([("type", "=", "sale")], limit=1)
+        cls.journal_01 = cls.journal_model.search(
+            [
+                ("type", "=", "sale"),
+                ("company_id", "=", cls.company_data["company"].id),
+            ],
+            limit=1,
+        )
         cls.journal_02 = cls.journal_01.copy()
-        cls.partner_01 = cls.partner_model.search([], limit=1)
-        cls.product_01 = cls.product_product_model.search(
-            [("type", "=", "service")], limit=1
+        cls.partner_01 = cls.partner_a
+        cls.product_01 = cls.env["product.product"].create(
+            {"name": "Test product 01", "type": "service"}
         )
         cls.sale_order_01 = cls.sale_order_model.create(
             {
