@@ -7,7 +7,7 @@ from odoo.tests.common import SavepointCase
 class TestAccountFiscalPositionAllowedJournalSale(SavepointCase):
     @classmethod
     def setUpClass(cls):
-        super(TestAccountFiscalPositionAllowedJournalSale, cls).setUpClass()
+        super().setUpClass()
 
         # MODELS
         cls.account_model = cls.env["account.account"]
